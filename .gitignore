@@ -30,6 +30,7 @@ res/
 *.so
 *.so.*
 *.dylib
+.vscode/
 
 # Executables
 *.exe
