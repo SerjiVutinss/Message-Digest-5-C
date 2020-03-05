@@ -54,7 +54,7 @@ void nextHashSHA256(WORD *M, WORD *H) {
 }
 
 // // Section 5.1.1 - message input from infile.
-// int nextblock(BLOCK *M, FILE *infile, uint64_t *numBits, PADFLAG *status) {
+// int nextblock(Block *M, FILE *infile, uint64_t *numBits, PADFLAG *status) {
 
 //   int i;
 //   size_t numBytesRead;
@@ -122,7 +122,7 @@ void nextHashSHA256(WORD *M, WORD *H) {
 //   };
   
 //   // The current padded message block.
-//   BLOCK M;
+//   Block M;
 //   uint64_t numBits = 0;
 //   PADFLAG status = READ;
 

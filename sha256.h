@@ -8,11 +8,11 @@
 // Section 2.1
 #define WORD uint32_t
 
-typedef union {
-  uint64_t sixty_four[8];
-  uint32_t thirty_two[16];
-  uint8_t eight[64];
-} BLOCK;
+// typedef union {
+//   uint64_t sixty_four[8];
+//   uint32_t thirty_two[16];
+//   uint8_t eight[64];
+// } Block;
 
 // Section 4.1.2
 #define Ch(x, y, z) ((x & y) ^ (~x & z))
@@ -29,7 +29,7 @@ typedef union {
 //   uint64_t sixfour[8];
 //   uint32_t threetwo[16];
 //   uint8_t eight[64];
-// } BLOCK;
+// } Block;
 
 // Keep track of where we are in padding the message.
 typedef enum {READ, PAD0, FINISH} PADFLAG;

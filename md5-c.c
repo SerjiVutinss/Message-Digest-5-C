@@ -2,68 +2,22 @@
 #include <stdlib.h>
 #include <math.h>
 #include <inttypes.h>
-#include <endian.h>
 
 #include "md5-c.h"
 #include "sha256.h"
 
+#include "message-info.h"
+#include "message-block.h"
 
-void printHashInfo(HashInfo *h) {
-
-    printf("-------------------------------------------------------------\n");
-    printf("                       Input Bytes: %d\n", h->inputBytes);
-    printf("                    Reserved Bytes: %d\n", RESERVED_BYTES);
-    printf("                Total Bytes Needed: %d\n", h->totalBytesNeeded);
-    printf("-------------------------------------------------------------\n");
-    printf("                       Full Blocks: %ld\n", h->fullBlocks);
-    printf("-------------------------------------------------------------\n");
-}
-
-void calculateHashInfo(HashInfo *h, long inputBytes) {
-    printf("\nCalculating hash info...\n");
-    HashInfo hashInfo;
-    h->inputBytes = inputBytes;
-    h->totalBytesNeeded = inputBytes + RESERVED_BYTES;
-    h->fullBlocks = floor((double)(inputBytes) / BLOCK_SIZE);
-}
-
-long getFileBytes(FILE *file) {
-    // Get the size of the file in bytes
-    fseek(file, 0L, SEEK_END);
-    long numInputBytes = ftell(file);
-    fseek(file, 0L, 0L);
-
-    return numInputBytes;
-}
-
-void getFileInfo(FILE *file, HashInfo *h)  {
-    calculateHashInfo(h, getFileBytes(file));
-    printHashInfo(h);
-    
-}
-
-void convertBlockToHostEndianness(BLOCK *block){
-    for (int i = 0; i < 16; i++) {
-        block->thirty_two[i] = be32toh(block->thirty_two[i]);
-    }
-}
-
-void closeBlock(BLOCK *M, WORD *H) { 
+void closeBlock(Block *M, WORD *H) { 
     convertBlockToHostEndianness(M);
     nextHashSHA256(M->thirty_two, H);
-}
-
-void createFullyPaddedBlock(BLOCK *block, uint64_t len) {
-    for(int i = 0; i < 56; i++) {
-        block->eight[i] = 0x00;
-    }
-    block->sixty_four[7] = htobe64(len);
 }
 
 int main(int argc, char *argv[]) {
 
     printf("--- MD5 Algorithm---\n");
-    printf("Block Size: %d Bytes\n\n", BLOCK_SIZE);
+
 
     // Expect and open a single filename.
     if (argc != 2) {
@@ -89,7 +43,7 @@ int main(int argc, char *argv[]) {
         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19  
     };
 
-    BLOCK M;
+    Block M;
 
     uint64_t len = (uint64_t)hashInfo.inputBytes * 8ULL;
 
