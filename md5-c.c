@@ -29,7 +29,7 @@ void calculateHashInfo(HashInfo *h, long inputBytes) {
 
     h->inputBytes = inputBytes;
     h->totalBytesNeeded = inputBytes + RESERVED_BYTES;
-    h->fullBlocks = floor((double)(inputBytes + RESERVED_BYTES) / BLOCK_SIZE);
+    h->fullBlocks = floor((double)(inputBytes) / BLOCK_SIZE);
 
     h->bytesInFullBlocks = h->fullBlocks * BLOCK_SIZE;
     int remainingInputBytes = h->inputBytes - h->bytesInFullBlocks;
@@ -53,22 +53,46 @@ void convertBlockToHostEndianness(BLOCK *block){
     }
 }
 
+void closeBlock(BLOCK *M, WORD *H) { 
+    convertBlockToHostEndianness(M);
+    nextHashSHA256(M->thirty_two, H);
+}
+
+void createFullyPaddedBlock(BLOCK *block, uint64_t len) {
+    for(int i = 0; i < 56; i++) {
+        block->eight[i] = 0x00;
+    }
+    block->sixty_four[7] = htobe64(len);
+}
+
 // typedef union {
 //   uint64_t sixfour[8];
 //   uint32_t threetwo[16];
 //   uint8_t eight[64];
 // } BLOCK;
 
-int main(int argc, char *argv) {
+int main(int argc, char *argv[]) {
 
     printf("--- MD5 Algorithm---\n");
     printf("Block Size: %d Bytes\n\n", BLOCK_SIZE);
 
-    char fileName[] = "./res/no-pad-block.txt";
+    // char fileName[] = "./res/two-pad-block.txt";
+
+    // Expect and open a single filename.
+    if (argc != 2) {
+        printf("Error: expected single filename as argument.\n");
+        return 1;
+    }
+
+    FILE *inFile = fopen(argv[1], "rb");
+    if (!inFile) {
+        printf("Error: couldn't open file %s.\n", argv[1]);
+        return 1;
+    }
+    // FILE *inFile = fopen(fileName, "rb");
 
     // Open the file
-    printf("Opening file: %s\n", fileName);
-    FILE *inFile = fopen(fileName, "rb");
+    // printf("Opening file: %s\n", fileName);
 
     long fileBytes = getFileBytes(inFile);
     printf("\tBytes in file: %ld\n", fileBytes);
@@ -84,7 +108,7 @@ int main(int argc, char *argv) {
     if(hashInfo.fullBlocks > 0) buffer = (char*)malloc(64 * sizeof(char));
 
     printf("\n");
-    printf("Processing: %ld full blocks\n", hashInfo.fullBlocks);
+    printf("Processing: %ld full blocks...\n", hashInfo.fullBlocks);
 
     // Section 5.3.3
     WORD H[] = {
@@ -93,91 +117,54 @@ int main(int argc, char *argv) {
     };
 
     BLOCK M;
+
+    uint64_t len = (uint64_t)hashInfo.inputBytes * 8ULL;
+
     // for each full block...
     for(int i = 0; i < hashInfo.fullBlocks; i++){
         // Read all 64 bytes for this block
         size_t read = fread(M.eight, 1, 64, inFile);
-        printf("Read %ld\n", read);
-        for(int k = 0; k < 64; k++) {
-            printf("%c", M.eight[k]);
-
-            // !!hash the block here!!
-            nextHashSHA256(M.thirty_two, H);
-        }
-        printf("\n");
+        // convertBlockToHostEndianness(&M);
+        // nextHashSHA256(M.thirty_two, H);
+        closeBlock(&M, H);
     }
+    printf("\tAll full blocks processed\n");
 
-    // All FULL BLOCKS Complete...
-
-    // ADD FIRST PADDED BLOCK NOW
-
-    // In both cases, all remaining input bytes will fit in the first block.
-    // Reallocate the buffer to fit the remaining bytes
-    buffer = (char*)realloc(buffer, hashInfo.bytesInPaddedBlocks * sizeof(char));
-    printf("Processing Remaining Input Bytes\n");
+    // Padded block - in all cases, all remaining input bytes AND 1bit will fit in this block.
+    printf("Processing Remaining Input Bytes:\n");
     // read the last bytes from the file
-    size_t bytesRead = fread(M.eight, 1, hashInfo.bytesInPaddedBlocks, inFile);
-    printf("BYTES READ IN PADDED BLOCK: %d\n", bytesRead);
-    int count;
-    for(count = 0; count < hashInfo.bytesInPaddedBlocks; count++) {
-        printf("%c", M.eight[count]);
-    }
-    printf("\n%d bytes added in padded block\n", count);
+    size_t bytesInBlock = fread(M.eight, 1, hashInfo.bytesInPaddedBlocks, inFile);
+    printf("\tBytes read: %d\n", bytesInBlock);
+    // Since this is not a full block, there must be room for at least one more byte, so add the 1bit.
+    M.eight[bytesInBlock] = 0x80;
+    bytesInBlock++;
 
-    printf("\n\nPOSITION OF 1BIT: %d\n", count);
-    printf("Adding 1bit\n");
-    printf("%" PRIx8 "\n", 0x80);
-    M.eight[count] = 0x80;
-    count++;
-
-    printf("\n\nPOSITION OF FIRST PADDED BYTE: %d\n", count);
-    printf("\n");
-
-    uint64_t len = (uint64_t)hashInfo.inputBytes * 8ULL;
-
-    printf("Bytes so far in first padded block %d\n", hashInfo.bytesInPaddedBlocks + 1);
-    if(hashInfo.paddedBlocks == 1) {
-        // Pad out this block normally, adding the length
-        int bytesToPad = (64 - 8) - (hashInfo.bytesInPaddedBlocks + 1);
-        printf("Padding current block with %d bytes\n", bytesToPad);
-        for(int i = count; i < 56; i++) {
-            printf("\nPadding position %d with %" PRIx8, i,  0x00);
+    if(bytesInBlock < 56) {
+        printf("\tSingle padded block\n");
+        // Room for everything here...
+        for(int i = bytesInBlock; i < 56; i++) {
             M.eight[i] = 0x00;
         }
-
-
-        printf("\nAdding length %d\n", len);
-        // Now we should be at last 64bit...
-        printf("%" PRIx64, len);
         M.sixty_four[7] = htobe64(len);
-
-    } else {
-        // Need to just pad the remaining bytes in this block with zero bytes
-        int bytesToPad = (64 - (hashInfo.bytesInPaddedBlocks + 1));
-        for(int i = 0; i < bytesToPad; i++) {
-            printf("%" PRIx8, 0x00);
-        M.sixty_four[7] = htobe64(len);
-        }
+        // convertBlockToHostEndianness(&M);
+        // nextHashSHA256(M.thirty_two, H);
+        closeBlock(&M, H);
     }
-
-// Convert to host endianess, word-size-wise.
-    convertBlockToHostEndianness(&M);
-    // for (int i = 0; i < 16; i++)
-    //     M.thirty_two[i] = be32toh(M.thirty_two[i]);
-
-    printf("\n");
-
-    // !!hash the block here!!
-    nextHashSHA256(M.thirty_two, H);
-
-    // finally, check if a last block is needed and add if it is
-    if(hashInfo.paddedBlocks == 2) {
-        printf("Creating all padding block\n");
-        for(int i = 0; i < 56; i++) {
-            printf("%" PRIx8, 0x00);
+    else {
+        printf("\tTwo padded blocks\n");
+        // Pad the rest of this block with zeroes and add a new fully padded block
+        // First, hash the previous block
+        for(int i = bytesInBlock; i < 64; i++){
+            M.eight[i] = 0x00;
         }
-        printf("%" PRIX64, len);
+        convertBlockToHostEndianness(&M);
         nextHashSHA256(M.thirty_two, H);
+        // Now, create the fully padded block and also hash it
+        printf("\n\tCreating new block\n");
+        createFullyPaddedBlock(&M, len);
+        // convertBlockToHostEndianness(&M);
+        // nextHashSHA256(M.thirty_two, H);
+        closeBlock(&M, H);
     }
 
     printf("\n\n\n");
@@ -189,7 +176,6 @@ int main(int argc, char *argv) {
     }
 
     printf("\n");
-    printf("\nDone\n");
 
     fclose(inFile);
 
