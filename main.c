@@ -3,7 +3,7 @@
 #include <math.h>
 #include <inttypes.h>
 
-#include "md5-c.h"
+#include "main.h"
 #include "sha256.h"
 
 #include "message-info.h"
