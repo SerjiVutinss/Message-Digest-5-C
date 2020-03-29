@@ -3,6 +3,8 @@
 
 #include <inttypes.h>
 
+#define WORD uint32_t
+
 typedef union {
   uint64_t sixty_four[8];
   uint32_t thirty_two[16];

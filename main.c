@@ -9,6 +9,8 @@
 #include "message-info.h"
 #include "message-block.h"
 
+#include "md5-alg.h"
+
 void closeBlock(Block *M, WORD *H) { 
     convertBlockToHostEndianness(M);
     nextHashSHA256(M->thirty_two, H);
@@ -38,10 +40,12 @@ int main(int argc, char *argv[]) {
     printf("Processing: %ld full blocks...\n", hashInfo.fullBlocks);
 
     // Section 5.3.3
-    WORD H[] = {
+    WORD H_SHA[] = {
         0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19  
     };
+
+    WORD H_MD5 = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
 
     Block M;
 
@@ -51,7 +55,7 @@ int main(int argc, char *argv[]) {
     for(int i = 0; i < hashInfo.fullBlocks; i++){
         // Read all 64 bytes for this block
         size_t read = fread(M.eight, 1, 64, inFile);
-        closeBlock(&M, H);
+        closeBlock(&M, H_SHA);
     }
     printf("\tAll full blocks processed\n");
 
@@ -71,7 +75,7 @@ int main(int argc, char *argv[]) {
             M.eight[i] = 0x00;
         }
         M.sixty_four[7] = htobe64(len);
-        closeBlock(&M, H);
+        closeBlock(&M, H_SHA);
     }
     else {
         printf("\tTwo padded blocks\n");
@@ -79,17 +83,17 @@ int main(int argc, char *argv[]) {
         for(int i = bytesInBlock; i < 64; i++){
             M.eight[i] = 0x00;
         }
-        closeBlock(&M, H);
+        closeBlock(&M, H_SHA);
         // Now, create the fully padded block and also hash it
         printf("\n\tCreating new block\n");
         createFullyPaddedBlock(&M, len);
-        closeBlock(&M, H);
+        closeBlock(&M, H_SHA);
     }
 
     printf("\n\n\n");
     // Print the hash.
     for (int i = 0; i < 8; i++) {
-        printf("%08" PRIx32 "", H[i]);
+        printf("%08" PRIx32 "", H_SHA[i]);
     }
 
     printf("\n");
