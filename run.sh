@@ -5,13 +5,14 @@ gcc main.c sha256.c md5-alg.c message-info.c message-block.c -lm -o app-main
 # gcc md5-c.c -lm -o md5-c
 # Run
 
-# file="./res/no-pad-block.txt"
-file="./res/two-pad-block.txt"
+file="./res/no-pad-block.txt"
+# file="./res/two-pad-block.txt"
 # file="app-main"
 
 
 ./app-main $file
 
 
-echo $(sha256sum $file)
-# echo $(md5sum $file)
+# echo $(sha256sum $file)
+echo ""
+echo $(md5sum $file)

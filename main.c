@@ -13,7 +13,8 @@
 
 void closeBlock(Block *M, WORD *H) { 
     convertBlockToHostEndianness(M);
-    nextHashSHA256(M->thirty_two, H);
+    // nextHashSHA256(M->thirty_two, H);
+    nextHashMD5(M->thirty_two, H);
 }
 
 int main(int argc, char *argv[]) {
@@ -45,7 +46,7 @@ int main(int argc, char *argv[]) {
         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19  
     };
 
-    WORD H_MD5 = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
+    WORD H_MD5[] = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
 
     Block M;
 
@@ -55,7 +56,8 @@ int main(int argc, char *argv[]) {
     for(int i = 0; i < hashInfo.fullBlocks; i++){
         // Read all 64 bytes for this block
         size_t read = fread(M.eight, 1, 64, inFile);
-        closeBlock(&M, H_SHA);
+        // closeBlock(&M, H_SHA);
+        closeBlock(&M, H_MD5);
     }
     printf("\tAll full blocks processed\n");
 
@@ -75,7 +77,8 @@ int main(int argc, char *argv[]) {
             M.eight[i] = 0x00;
         }
         M.sixty_four[7] = htobe64(len);
-        closeBlock(&M, H_SHA);
+        // closeBlock(&M, H_SHA);
+        closeBlock(&M, H_MD5);
     }
     else {
         printf("\tTwo padded blocks\n");
@@ -83,18 +86,29 @@ int main(int argc, char *argv[]) {
         for(int i = bytesInBlock; i < 64; i++){
             M.eight[i] = 0x00;
         }
-        closeBlock(&M, H_SHA);
+        // closeBlock(&M, H_SHA);
+        closeBlock(&M, H_MD5);
+
         // Now, create the fully padded block and also hash it
         printf("\n\tCreating new block\n");
         createFullyPaddedBlock(&M, len);
-        closeBlock(&M, H_SHA);
+        // closeBlock(&M, H_SHA);
+        closeBlock(&M, H_MD5);
     }
 
     printf("\n\n\n");
-    // Print the hash.
-    for (int i = 0; i < 8; i++) {
-        printf("%08" PRIx32 "", H_SHA[i]);
+    // Print the hash SHA256.
+    // for (int i = 0; i < 8; i++) {
+    //     printf("%08" PRIx32 "", H_SHA[i]);
+    // }
+
+    for (int i = 0; i < 4; i++) {
+        printf("%04" PRIx32 "", H_MD5[i]);
     }
+
+    printf("\n");
+    printf("%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n", H_MD5[0]&0xff, (H_MD5[0]>>8)&0xff, (H_MD5[0]>>16)&0xff, (H_MD5[0]>>24)&0xff, H_MD5[1]&0xff, (H_MD5[1]>>8)&0xff, (H_MD5[1]>>16)&0xff, (H_MD5[1]>>24)&0xff, H_MD5[2]&0xff, (H_MD5[2]>>8)&0xff, (H_MD5[2]>>16)&0xff, (H_MD5[2]>>24)&0xff, H_MD5[2]&0xff, (H_MD5[3]>>8)&0xff, (H_MD5[3]>>16)&0xff, (H_MD5[3]>>24)&0xff);
+
 
     printf("\n");
 
