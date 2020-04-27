@@ -2,18 +2,12 @@
 #define MESSAGE_BLOCK_H
 
 #include <inttypes.h>
+#include <endian.h>
 
-#define WORD uint32_t
+#include "custom-types.h"
 
-typedef union Block {
-  uint64_t sixty_four[8];
-  uint32_t thirty_two[16];
-  uint8_t eight[64];
-} Block;
+void createFullyPaddedBlock(MessageBlock *block, uint64_t len);
 
-
-void createFullyPaddedBlock(Block *block, uint64_t len);
-
-void convertBlockToHostEndianness(Block *block);
+void convertBlockToHostEndianness(MessageBlock *block);
 
 #endif
