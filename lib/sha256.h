@@ -5,7 +5,9 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "custom-types.h"
+#include "common-alg.h"
 
 // Section 5.3.3
 static WORD H_SHA256[] = {
@@ -41,8 +43,15 @@ static const WORD K_SHA256[] = {
 #define sig0(x) (ROTR(x, 7) ^ ROTR(x, 18) ^ SHR(x, 3))
 #define sig1(x) (ROTR(x, 17) ^ ROTR(x, 19) ^ SHR(x, 10))
 
- int processNextSHA256Block(MessageBlock *M, FILE *infile, uint64_t *nobits, HashStatus *status);
- void nextSHA256Hash(WORD *M, WORD *H);
-void startSHA256(FILE *inFile);
+WORD *startSHA256HashData(HashOptions hashData);
+WORD *startSHA256FileHash(FILE *inFile);
+WORD *startSHA256StringHash(char *inputString);
+
+// int processNextSHA256Block(MessageBlock *M, FILE *infile, uint64_t *nobits, HashStatus *status);
+// int processSHA256FileBlock(MessageBlock *M, FILE *infile, size_t *numBits, enum HashStatus *status);
+// int processSHA256StringBlock(MessageBlock *M, char *buffer, size_t *numBits, enum HashStatus *status);
+int processNextSHA256Block(MessageBlock *M, size_t numBytesRead, uint64_t *numBits, HashStatus *status);
+// void nextSHA256Hash(WORD *M, WORD *H);
+void nextSHA256Hash(WORD *M, WORD *H);
 
 #endif

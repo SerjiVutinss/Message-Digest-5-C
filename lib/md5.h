@@ -5,7 +5,10 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "custom-types.h"
+#include "common-alg.h"
+
 
 /**
  * Define a WORD type which is an alias for a 32 bit unsigned integer type.
@@ -162,20 +165,19 @@ static void II(uint32_t *a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint
     *a = b + ROTL(sum, s);
 }
 
+WORD *startMD5(HashOptions hashOptions);
+
+// WORD *startMD5HashData(HashOptions hashData);
+// WORD *startMD5FileHash(FILE *inFile);
+// WORD *startMD5StringHash(char *inputString);
+
 /**
- * Prototypes for unimplemented methods
+ * Prototypes for unimplemented (private) methods
  **/
 // int processNextBlock(MessageBlock *M, FILE *infile, size_t *numBits, enum HashStatus *status);
-static int processFileBlock(MessageBlock *M, FILE *infile, size_t *numBits, enum HashStatus *status);
-static int processStringBlock(MessageBlock *M, char *buffer, size_t *numBits, enum HashStatus *status);
-static int processNextBlock(MessageBlock *M, size_t numBytesRead, size_t *numBits, enum HashStatus *status);
-static void nextHash(MessageBlock *M, WORD *H);
-
-WORD *startMD5HashFile(FILE *inFile);
-WORD *startMD5StringHash(char *inputString);
-
-WORD *startMD5HashData(HashOptions hashData);
-
-// void startMD5StringHash(char *string);
+// static int processFileBlock(MessageBlock *M, FILE *infile, size_t *numBits, enum HashStatus *status);
+// static int processStringBlock(MessageBlock *M, char *buffer, size_t *numBits, enum HashStatus *status);
+static int processNextMD5Block(MessageBlock *M, size_t numBytesRead, size_t *numBits, enum HashStatus *status);
+static void nextMD5Hash(WORD *M, WORD *H);
 
 #endif

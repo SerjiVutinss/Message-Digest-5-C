@@ -165,30 +165,42 @@ int main(int argc, char *argv[])
     {
         printf("GETTING FILE INFO\n");
         HashInfo hashInfo;
-        // getFileInfo(hashOptions.file, &hashInfo);
+        getFileInfo(hashOptions.file, &hashInfo);
     }
 
-    printf("HASHING\n");
-    WORD *result = startMD5HashData(hashOptions);
-
-    for (int i = 0; i < 4; i++)
+    if (hashOptions.algorithm == SHA256)
     {
-        printf("%02x%02x%02x%02x", (result[i] >> 0) & 0xFF, (result[i] >> 8) & 0xFF, (result[i] >> 16) & 0xFF, (result[i] >> 24) & 0xFF);
+        WORD *result = startSHA256HashData(hashOptions);
+
+        for (int i = 0; i < 8; i++)
+            printf("%08" PRIx32 "", result[i]);
+        printf("\n");
+
+        printf("\n");
+
+        if (hashOptions.isOutputToFile)
+        {
+            // printf("OUTPUTTING TO FILE %s\n", outputFileName);
+            FILE *outFile = fopen(hashOptions.outputFilename, "w+");
+            // printf("OPENED FILE %s\n", outputFileName);
+            for (int i = 0; i < 4; i++)
+            {
+                // printf("WRITING TO FILE %s\n", outputFileName);
+                fprintf(outFile, "%02x%02x%02x%02x", (result[i] >> 0) & 0xFF, (result[i] >> 8) & 0xFF, (result[i] >> 16) & 0xFF, (result[i] >> 24) & 0xFF);
+                // fprintf(outFile, "Hello....");
+            }
+            fclose(outFile);
+        }
     }
-    printf("\n");
-
-    if (hashOptions.isOutputToFile)
+    else // MD5
     {
-        // printf("OUTPUTTING TO FILE %s\n", outputFileName);
-        FILE *outFile = fopen(hashOptions.outputFilename, "w+");
-        // printf("OPENED FILE %s\n", outputFileName);
+        WORD *result = startMD5(hashOptions);
+        printf("\n");
         for (int i = 0; i < 4; i++)
         {
-            // printf("WRITING TO FILE %s\n", outputFileName);
-            fprintf(outFile, "%02x%02x%02x%02x", (result[i] >> 0) & 0xFF, (result[i] >> 8) & 0xFF, (result[i] >> 16) & 0xFF, (result[i] >> 24) & 0xFF);
-            // fprintf(outFile, "Hello....");
+            printf("%02x%02x%02x%02x", (result[i] >> 0) & 0xFF, (result[i] >> 8) & 0xFF, (result[i] >> 16) & 0xFF, (result[i] >> 24) & 0xFF);
         }
-        fclose(outFile);
+        printf("\n");
     }
 
     return 0;
