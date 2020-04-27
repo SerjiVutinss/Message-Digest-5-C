@@ -7,47 +7,11 @@
 
 #include "sha256.h"
 
-WORD *startSHA256HashData(HashOptions hashData)
-{
-  if (hashData.isFile == true)
-  {
-    return startSHA256FileHash(hashData.file);
-  }
-  else if (hashData.isString == true)
-  {
-    return startSHA256StringHash(hashData.string);
-  }
-}
-
-WORD *startSHA256FileHash(FILE *inFile)
+WORD *startSHA256Hash(HashOptions hashOptions)
 {
 
-  // The current padded message block.
-  MessageBlock M;
-  uint64_t numBits = 0;
-  HashStatus status = READ;
+  printf("STARTING SHA256 HASH\n");
 
-  int (*processFunctionPtr)(MessageBlock * M, size_t numBytesRead, size_t * numBits, enum HashStatus * status);
-  processFunctionPtr = &processNextSHA256Block;
-  // Read through all of the padded message blocks.
-  while (processFileBlock(&M, inFile, &numBits, &status, processNextSHA256Block));
-  {
-    // Calculate the next hash value.
-    nextSHA256Hash(M.thirty_two, H_SHA256);
-  }
-
-  // Print the hash.
-  // for (int i = 0; i < 8; i++)
-  //   printf("%08" PRIx32 "", H_SHA256[i]);
-  // printf("\n");
-
-  fclose(inFile);
-
-  return H_SHA256;
-}
-
-WORD *startSHA256StringHash(char *inputString)
-{
   MessageBlock M;                // Declare a message block which file bytes will be read into.
   uint64_t numBits = 0;          // Keep track of the number of bits read from the file.
   enum HashStatus status = READ; // Current status of the algorithm.
@@ -55,49 +19,31 @@ WORD *startSHA256StringHash(char *inputString)
   int (*processFunctionPtr)(MessageBlock * M, size_t numBytesRead, size_t * numBits, enum HashStatus * status);
   processFunctionPtr = &processNextSHA256Block;
 
-  // While there are still bytes in the file, keep processing blocks as needed.
-  while (processStringBlock(&M, inputString, &numBits, &status, processFunctionPtr))
+  WORD *completedHash;
+  if (hashOptions.isFile == true)
   {
-    // Hash the current block, passing in both the Block and the MD5 initialisers.
-    nextSHA256Hash(M.thirty_two, H_SHA256);
+
+    // While there are still bytes in the file, keep processing blocks as needed.
+    while (processFileBlock(&M, hashOptions.file, &numBits, &status, processFunctionPtr))
+    {
+      // Hash the current block, passing in both the Block and the MD5 initialisers.
+      nextSHA256Hash(M.thirty_two, H_SHA256);
+    }
+
+    fclose(hashOptions.file);
+  }
+  else if (hashOptions.isString == true)
+  {
+    // While there are still bytes in the file, keep processing blocks as needed.
+    while (processStringBlock(&M, hashOptions.string, &numBits, &status, processFunctionPtr))
+    {
+      // Hash the current block, passing in both the Block and the MD5 initialisers.
+      nextSHA256Hash(M.thirty_two, H_SHA256);
+    }
   }
 
   return H_SHA256;
 }
-
-// size_t getBytesFromString256(char buffer[], char *inStr, int start, int length)
-// {
-//     memcpy(buffer, &inStr[start], length);
-
-//     for (int i = 0; i < 64; i++)
-//     {
-//         if (buffer[i] == '\0')
-//         {
-//             // reached the end
-//             return i;
-//         }
-//     }
-//     return 64;
-// }
-
-// int processSHA256FileBlock(MessageBlock *M, FILE *infile, size_t *numBits, enum HashStatus *status)
-// {
-//   // Try to read 64 bytes from the file.
-//   size_t numBytesRead = fread(M->eight, 1, 64, infile);
-//   *numBits += (8ULL * ((uint64_t)numBytesRead));
-
-//   return processNextSHA256Block(M, numBytesRead, numBits, status);
-// }
-
-// int processSHA256StringBlock(MessageBlock *M, char *buffer, size_t *numBits, enum HashStatus *status)
-// {
-//   size_t bytesRead = (*numBits / 8ULL);
-//   size_t newBytesRead = getBytesFromString(M->eight, buffer, bytesRead, 64);
-//   // *numBits += newBytesRead * 8;
-//   *numBits += (8ULL * ((uint64_t)newBytesRead));
-
-//   return processNextSHA256Block(M, newBytesRead, numBits, status);
-// }
 
 // Section 5.1.1 - message input from infile.
 int processNextSHA256Block(MessageBlock *M, size_t numBytesRead, uint64_t *numBits, HashStatus *status)
@@ -119,11 +65,10 @@ int processNextSHA256Block(MessageBlock *M, size_t numBytesRead, uint64_t *numBi
     return 1;
   }
 
-  // // Try to read 64 bytes from the file.
-  // numBytesRead = fread(M->eight, 1, 64, infile);
-  // *numBits += (8ULL * ((uint64_t)numBytesRead));
-
-  if (numBytesRead < 56)
+  // A full block was read, so nothing further needs to be done with this block.
+  // if (numBytesRead == 64)
+  //   return 1;
+  else if (numBytesRead < 56)
   {
     // We can put all padding in this block.
     M->eight[numBytesRead] = 0x80;
@@ -203,3 +148,49 @@ void nextSHA256Hash(WORD *M, WORD *H)
   H[6] += g;
   H[7] += h;
 }
+
+// WORD *startSHA256FileHash(FILE *inFile)
+// {
+
+//   // The current padded message block.
+//   MessageBlock M;
+//   uint64_t numBits = 0;
+//   HashStatus status = READ;
+
+//   int (*processFunctionPtr)(MessageBlock * M, size_t numBytesRead, size_t * numBits, enum HashStatus * status);
+//   processFunctionPtr = &processNextSHA256Block;
+//   // Read through all of the padded message blocks.
+//   while (processFileBlock(&M, inFile, &numBits, &status, processNextSHA256Block));
+//   {
+//     // Calculate the next hash value.
+//     nextSHA256Hash(M.thirty_two, H_SHA256);
+//   }
+
+//   // Print the hash.
+//   // for (int i = 0; i < 8; i++)
+//   //   printf("%08" PRIx32 "", H_SHA256[i]);
+//   // printf("\n");
+
+//   fclose(inFile);
+
+//   return H_SHA256;
+// }
+
+// WORD *startSHA256StringHash(char *inputString)
+// {
+//   MessageBlock M;                // Declare a message block which file bytes will be read into.
+//   uint64_t numBits = 0;          // Keep track of the number of bits read from the file.
+//   enum HashStatus status = READ; // Current status of the algorithm.
+
+//   int (*processFunctionPtr)(MessageBlock * M, size_t numBytesRead, size_t * numBits, enum HashStatus * status);
+//   processFunctionPtr = &processNextSHA256Block;
+
+//   // While there are still bytes in the file, keep processing blocks as needed.
+//   while (processStringBlock(&M, inputString, &numBits, &status, processFunctionPtr))
+//   {
+//     // Hash the current block, passing in both the Block and the MD5 initialisers.
+//     nextSHA256Hash(M.thirty_two, H_SHA256);
+//   }
+
+//   return H_SHA256;
+// }

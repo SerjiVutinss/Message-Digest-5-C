@@ -43,15 +43,9 @@ static const WORD K_SHA256[] = {
 #define sig0(x) (ROTR(x, 7) ^ ROTR(x, 18) ^ SHR(x, 3))
 #define sig1(x) (ROTR(x, 17) ^ ROTR(x, 19) ^ SHR(x, 10))
 
-WORD *startSHA256HashData(HashOptions hashData);
-WORD *startSHA256FileHash(FILE *inFile);
-WORD *startSHA256StringHash(char *inputString);
+WORD *startSHA256Hash(HashOptions hashOptions);
 
-// int processNextSHA256Block(MessageBlock *M, FILE *infile, uint64_t *nobits, HashStatus *status);
-// int processSHA256FileBlock(MessageBlock *M, FILE *infile, size_t *numBits, enum HashStatus *status);
-// int processSHA256StringBlock(MessageBlock *M, char *buffer, size_t *numBits, enum HashStatus *status);
-int processNextSHA256Block(MessageBlock *M, size_t numBytesRead, uint64_t *numBits, HashStatus *status);
-// void nextSHA256Hash(WORD *M, WORD *H);
-void nextSHA256Hash(WORD *M, WORD *H);
+static int processNextSHA256Block(MessageBlock *M, size_t numBytesRead, uint64_t *numBits, HashStatus *status);
+static void nextSHA256Hash(WORD *M, WORD *H);
 
 #endif

@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
 
     if (hashOptions.algorithm == SHA256)
     {
-        WORD *result = startSHA256HashData(hashOptions);
+        WORD *result = startSHA256Hash(hashOptions);
 
         for (int i = 0; i < 8; i++)
             printf("%08" PRIx32 "", result[i]);
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
     }
     else // MD5
     {
-        WORD *result = startMD5(hashOptions);
+        WORD *result = startMD5Hash(hashOptions);
         printf("\n");
         for (int i = 0; i < 4; i++)
         {

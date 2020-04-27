@@ -1,21 +1,8 @@
 #include "md5.h"
 
-// WORD *startMD5HashData(HashOptions hashData)
-// {
-//     if (hashData.isFile == true)
-//     {
-//         return startMD5FileHash(hashData.file);
-//     }
-//     else if (hashData.isString == true)
-//     {
-//         return startMD5StringHash(hashData.string);
-//     }
-// }
-
-WORD *startMD5(HashOptions hashOptions)
+WORD *startMD5Hash(HashOptions hashOptions)
 {
-
-    printf("IN MD5");
+    printf("STARTING MD5 HASH\n");
 
     MessageBlock M;                // Declare a message block which file bytes will be read into.
     uint64_t numBits = 0;          // Keep track of the number of bits read from the file.
@@ -49,84 +36,6 @@ WORD *startMD5(HashOptions hashOptions)
 
     return H_MD5;
 }
-
-// WORD *startMD5StringHash(char *inputString)
-// {
-
-//     MessageBlock M;                // Declare a message block which file bytes will be read into.
-//     uint64_t numBits = 0;          // Keep track of the number of bits read from the file.
-//     enum HashStatus status = READ; // Current status of the algorithm.
-
-//     int (*processFunctionPtr)(MessageBlock * M, size_t numBytesRead, size_t * numBits, enum HashStatus * status);
-//     processFunctionPtr = &processNextMD5Block;
-
-//     // While there are still bytes in the file, keep processing blocks as needed.
-//     while (processStringBlock(&M, inputString, &numBits, &status, processFunctionPtr))
-//     {
-//         // Hash the current block, passing in both the Block and the MD5 initialisers.
-//         nextMD5Hash(M.thirty_two, H_MD5);
-//     }
-
-//     return H_MD5;
-// }
-
-// WORD *startMD5FileHash(FILE *inFile)
-// {
-
-//     MessageBlock M;                // Declare a message block which file bytes will be read into.
-//     uint64_t numBits = 0;          // Keep track of the number of bits read from the file.
-//     enum HashStatus status = READ; // Current status of the algorithm.
-
-//     int (*processFunctionPtr)(MessageBlock * M, size_t numBytesRead, size_t * numBits, enum HashStatus * status);
-//     processFunctionPtr = &processNextMD5Block;
-
-//     // While there are still bytes in the file, keep processing blocks as needed.
-//     while (processFileBlock(&M, inFile, &numBits, &status, processFunctionPtr))
-//     {
-//         // Hash the current block, passing in both the Block and the MD5 initialisers.
-//         nextMD5Hash(M.thirty_two, H_MD5);
-//     }
-
-//     fclose(inFile);
-
-//     return H_MD5;
-// }
-
-// size_t getBytesFromString(char buffer[], char *inStr, int start, int length)
-// {
-//     memcpy(buffer, &inStr[start], length);
-
-//     for (int i = 0; i < 64; i++)
-//     {
-//         if (buffer[i] == '\0')
-//         {
-//             // reached the end
-//             return i;
-//         }
-//     }
-//     return 64;
-// }
-
-// int processStringBlock(MessageBlock *M, char *buffer, size_t *numBits, enum HashStatus *status)
-// {
-//     size_t bytesRead = (*numBits / 8ULL);
-//     size_t newBytesRead = getBytesFromString(M->eight, buffer, bytesRead, 64);
-//     // *numBits += newBytesRead * 8;
-//     *numBits += (8ULL * ((uint64_t)newBytesRead));
-
-//     return processNextBlock(M, newBytesRead, numBits, status);
-// }
-
-// int processFileBlock(MessageBlock *M, FILE *infile, size_t *numBits, enum HashStatus *status)
-// {
-//     // Attempt to read 64 (512 bits) bytes from the file into the Block.
-//     size_t numFileBytesRead = fread(&M->eight, 1, 64, infile);
-//     // Increment the total bits read by the number of recently read bits.
-//     // *numBits += numFileBytesRead * 8;
-//     *numBits += (8ULL * ((uint64_t)numFileBytesRead));
-
-//     return processNextBlock(M, numFileBytesRead, numBits, status);
-// }
 
 /**
  * Read and process a message block from the input file.
@@ -163,7 +72,7 @@ int processNextMD5Block(MessageBlock *M, size_t numBytesRead, size_t *numBits, e
         M->eight[numBytesRead] = 0x80;
         // Pad with correct number of zeroes...
         for (int i = numBytesRead + 1; i < 56; i++)
-            M->eight[i] = 0;
+            M->eight[i] = 0x00;
         // ...and append the length
         M->sixty_four[7] = *numBits;
         // And set the Status to FINISHED.
@@ -351,3 +260,45 @@ void nextMD5Hash(WORD *M, WORD *H)
     H[2] += C;
     H[3] += D;
 }
+
+// WORD *startMD5StringHash(char *inputString)
+// {
+
+//     MessageBlock M;                // Declare a message block which file bytes will be read into.
+//     uint64_t numBits = 0;          // Keep track of the number of bits read from the file.
+//     enum HashStatus status = READ; // Current status of the algorithm.
+
+//     int (*processFunctionPtr)(MessageBlock * M, size_t numBytesRead, size_t * numBits, enum HashStatus * status);
+//     processFunctionPtr = &processNextMD5Block;
+
+//     // While there are still bytes in the file, keep processing blocks as needed.
+//     while (processStringBlock(&M, inputString, &numBits, &status, processFunctionPtr))
+//     {
+//         // Hash the current block, passing in both the Block and the MD5 initialisers.
+//         nextMD5Hash(M.thirty_two, H_MD5);
+//     }
+
+//     return H_MD5;
+// }
+
+// WORD *startMD5FileHash(FILE *inFile)
+// {
+
+//     MessageBlock M;                // Declare a message block which file bytes will be read into.
+//     uint64_t numBits = 0;          // Keep track of the number of bits read from the file.
+//     enum HashStatus status = READ; // Current status of the algorithm.
+
+//     int (*processFunctionPtr)(MessageBlock * M, size_t numBytesRead, size_t * numBits, enum HashStatus * status);
+//     processFunctionPtr = &processNextMD5Block;
+
+//     // While there are still bytes in the file, keep processing blocks as needed.
+//     while (processFileBlock(&M, inFile, &numBits, &status, processFunctionPtr))
+//     {
+//         // Hash the current block, passing in both the Block and the MD5 initialisers.
+//         nextMD5Hash(M.thirty_two, H_MD5);
+//     }
+
+//     fclose(inFile);
+
+//     return H_MD5;
+// }
