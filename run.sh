@@ -9,12 +9,16 @@ gcc main.c lib/md5.c lib/sha256.c lib/message-info.c -lm -o app-main
 # Run
 
 # file="./res/no-pad-block.txt"
-file="./res/abc.txt"
+# file="./res/abc.txt"
 # file="./res/two-pad-block.txt"
+# file="./res/lorem-ipsum.txt"
+file="./res/binary.bin"
 # file="app-main"
 
 
-./app-main $file
+# ./app-main $file --verbose --both --test --output myfile.txt
+./app-main $file --output myfile.txt
+# ./app-main --help
 
 echo "------------------------"
 echo "SHA256:"

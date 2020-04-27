@@ -1,21 +1,6 @@
 #include "md5.h"
 
-// /**
-//  * Calculate the number of zero bits in a block, taking into account that
-//  * if there are not enough bits to append the length of the message, a new block
-//  * must be created.
-//  **/
-// uint64_t getNumZeroBytes(uint64_t numBits) {
-//     uint64_t result = 512ULL - (numBits % 512ULL);
-//     if (result < 65)
-//         result += 512;
-//     result -= 72;
-//     return (result / 8ULL);
-// }
-
-
-
-void startMD5Hash(FILE *inFile) {
+WORD* startMD5Hash(FILE *inFile) {
 
     MessageBlock M; // Declare a message block which file bytes will be read into.
     uint64_t numBits = 0; // Keep track of the number of bits read from the file.
@@ -34,6 +19,8 @@ void startMD5Hash(FILE *inFile) {
     printf("\n");
 
     fclose(inFile);
+
+    return H_MD5;
 }
 
 void nextHash(MessageBlock *M, WORD *H) {

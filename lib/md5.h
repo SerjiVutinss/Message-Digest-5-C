@@ -164,7 +164,7 @@ static void II(uint32_t *a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint
  **/
 static int processNextBlock(MessageBlock *M, FILE *infile, size_t *numBits, enum HashStatus *status);
 static void nextHash(MessageBlock *M, WORD *H);
-void startMD5Hash(FILE *inFile);
+WORD* startMD5Hash(FILE *inFile);
 
 
 #endif
