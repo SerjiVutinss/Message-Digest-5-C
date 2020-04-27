@@ -31,6 +31,11 @@ void nextHashSHA256(WORD *M, WORD *H) {
   WORD a, b, c, d, e, f, g, h, T1, T2;
   int t;
 
+  // for (int i = 0; i < 16; i++) {
+  //   W[i] = M[i];
+  //   printf("M: %08" PRIx32 "\n", W[i]);
+  // }
+
   for (t = 0; t < 16; t++) {
     W[t] = M[t];
   }

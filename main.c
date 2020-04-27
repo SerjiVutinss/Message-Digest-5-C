@@ -6,20 +6,34 @@
 #include "main.h"
 #include "sha256.h"
 
-#include "message-info.h"
-#include "message-block.h"
+#include "lib/message-info.h"
+#include "lib/message-block.h"
 
-#include "md5-alg.h"
+#include "lib/md5-alg.h"
 
-void closeBlock(Block *M, WORD *H) { 
+void closeBlock(Block *M, WORD *ALG_WORD, int alg) { 
+    
     convertBlockToHostEndianness(M);
-    // nextHashSHA256(M->thirty_two, H);
-    nextHashMD5(M->thirty_two, H);
+
+    for (int i = 0; i < 16; i++) {
+      printf("M: %08" PRIx32 "\n", M->thirty_two[i]);
+    }
+
+    if(alg == 0) nextHashSHA256(M->thirty_two, ALG_WORD);
+    else nextHashMD5(M, ALG_WORD);
+}
+
+void printReverseEndian(unsigned n) {
+  printf("%02x%02x%02x%02x", n & 0xff, (n >> 8) & 0xff, (n >> 16) & 0xff, n >> 24);
 }
 
 int main(int argc, char *argv[]) {
 
-    printf("--- MD5 Algorithm---\n");
+    // 0 for SHA256 or 1 for MD5
+    int algorithm = 0;
+
+    if(algorithm == 0) printf("--- SHA256 Algorithm---\n");
+    else printf("--- MD5 Algorithm---\n");
 
 
     // Expect and open a single filename.
@@ -48,6 +62,10 @@ int main(int argc, char *argv[]) {
 
     WORD H_MD5[] = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
 
+    WORD *ALG_WORD;
+    if(algorithm == 0) ALG_WORD = H_SHA;
+    else ALG_WORD = H_MD5;
+
     Block M;
 
     uint64_t len = (uint64_t)hashInfo.inputBytes * 8ULL;
@@ -57,7 +75,7 @@ int main(int argc, char *argv[]) {
         // Read all 64 bytes for this block
         size_t read = fread(M.eight, 1, 64, inFile);
         // closeBlock(&M, H_SHA);
-        closeBlock(&M, H_MD5);
+        closeBlock(&M, ALG_WORD, algorithm);
     }
     printf("\tAll full blocks processed\n");
 
@@ -78,7 +96,7 @@ int main(int argc, char *argv[]) {
         }
         M.sixty_four[7] = htobe64(len);
         // closeBlock(&M, H_SHA);
-        closeBlock(&M, H_MD5);
+        closeBlock(&M, ALG_WORD, algorithm);
     }
     else {
         printf("\tTwo padded blocks\n");
@@ -87,27 +105,35 @@ int main(int argc, char *argv[]) {
             M.eight[i] = 0x00;
         }
         // closeBlock(&M, H_SHA);
-        closeBlock(&M, H_MD5);
+        closeBlock(&M, ALG_WORD, algorithm);
 
         // Now, create the fully padded block and also hash it
         printf("\n\tCreating new block\n");
         createFullyPaddedBlock(&M, len);
         // closeBlock(&M, H_SHA);
-        closeBlock(&M, H_MD5);
+        closeBlock(&M, ALG_WORD, algorithm);
     }
+    // printf("Length: %08" PRIx64 "\n", len);
 
     printf("\n\n\n");
-    // Print the hash SHA256.
-    // for (int i = 0; i < 8; i++) {
-    //     printf("%08" PRIx32 "", H_SHA[i]);
-    // }
-
-    for (int i = 0; i < 4; i++) {
-        printf("%04" PRIx32 "", H_MD5[i]);
+    
+    printf("OUTPUT:\n");
+    if(algorithm == 0) {
+        for (int i = 0; i < 8; i++) {
+            printf("%08" PRIx32 "", ALG_WORD[i]);
+        }
     }
+    else {
+        // printf("\n");
+        // for (int i = 0; i < 4; i++) {
+        //     printReverseEndian(ALG_WORD[i]);
+        // }
 
-    printf("\n");
-    printf("%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\n", H_MD5[0]&0xff, (H_MD5[0]>>8)&0xff, (H_MD5[0]>>16)&0xff, (H_MD5[0]>>24)&0xff, H_MD5[1]&0xff, (H_MD5[1]>>8)&0xff, (H_MD5[1]>>16)&0xff, (H_MD5[1]>>24)&0xff, H_MD5[2]&0xff, (H_MD5[2]>>8)&0xff, (H_MD5[2]>>16)&0xff, (H_MD5[2]>>24)&0xff, H_MD5[2]&0xff, (H_MD5[3]>>8)&0xff, (H_MD5[3]>>16)&0xff, (H_MD5[3]>>24)&0xff);
+
+        for (int i = 0; i < 4; ++i)
+        printf("%02x%02x%02x%02x", (ALG_WORD[i] >> 0) & 0xFF, (ALG_WORD[i] >> 8) & 0xFF, (ALG_WORD[i] >> 16) & 0xFF, (ALG_WORD[i] >> 24) & 0xFF);
+
+    }
 
 
     printf("\n");

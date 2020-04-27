@@ -5,9 +5,7 @@
 #include <inttypes.h>
 #include <endian.h>
 
-#include "message-block.h"
-
-// Section 2.1
+#include "lib/message-block.h"
 
 // Section 4.1.2
 #define Ch(x, y, z) ((x & y) ^ (~x & z))

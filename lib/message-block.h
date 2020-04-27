@@ -5,7 +5,7 @@
 
 #define WORD uint32_t
 
-typedef union {
+typedef union Block {
   uint64_t sixty_four[8];
   uint32_t thirty_two[16];
   uint8_t eight[64];
