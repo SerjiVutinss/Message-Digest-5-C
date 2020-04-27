@@ -7,6 +7,28 @@
 
 #include "sha256.h"
 
+void startSHA256(FILE *inFile) {
+
+  
+  // The current padded message block.
+  MessageBlock M;
+  uint64_t numBits = 0;
+  HashStatus status = READ;
+
+  // Read through all of the padded message blocks.
+  while (processNextSHA256Block(&M, inFile, &numBits, &status)) {
+    // Calculate the next hash value.
+    nextSHA256Hash(M.thirty_two, H_SHA256);
+  }
+
+  // Print the hash.
+  for (int i = 0; i < 8; i++)
+    printf("%08" PRIx32 "", H_SHA256[i]);
+  printf("\n");
+
+  fclose(inFile);
+}
+
 // Section 5.1.1 - message input from infile.
 int processNextSHA256Block(MessageBlock *M, FILE *infile, uint64_t *numBits, HashStatus *status) {
 
@@ -84,31 +106,4 @@ void nextSHA256Hash(WORD *M, WORD *H) {
 
   H[0] += a; H[1] += b ; H[2] += c; H[3] += d;
   H[4] += e; H[5] += f ; H[6] += g; H[7] += h;
-}
-
-void startSHA256(FILE *inFile) {
-
-  // Section 5.3.3
-  WORD H[] = {
-    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-    0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19  
-  };
-  
-  // The current padded message block.
-  MessageBlock M;
-  uint64_t numBits = 0;
-  HashStatus status = READ;
-
-  // Read through all of the padded message blocks.
-  while (processNextSHA256Block(&M, inFile, &numBits, &status)) {
-    // Calculate the next hash value.
-    nextSHA256Hash(M.thirty_two, H);
-  }
-
-  // Print the hash.
-  for (int i = 0; i < 8; i++)
-    printf("%08" PRIx32 "", H[i]);
-  printf("\n");
-
-  fclose(inFile);
 }

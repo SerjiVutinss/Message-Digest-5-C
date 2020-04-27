@@ -10,14 +10,16 @@ gcc main.c lib/md5.c lib/sha256.c lib/message-info.c -lm -o app-main
 
 # file="./res/no-pad-block.txt"
 # file="./res/abc.txt"
+file="./res/quick-brown-fox.txt"
 # file="./res/two-pad-block.txt"
 # file="./res/lorem-ipsum.txt"
-file="./res/binary.bin"
+# file="./res/binary.bin"
 # file="app-main"
 
 
-# ./app-main $file --verbose --both --test --output myfile.txt
-./app-main $file --output myfile.txt
+./app-main $file --verbose --both --test --output myfile.txt
+# ./app-main $file --md5  --string "The quick brown fox jumps over the lazy dog" --output myfile.txt
+# ./app-main --string "The quick brown fox jumps over the lazy dog"
 # ./app-main --help
 
 echo "------------------------"
