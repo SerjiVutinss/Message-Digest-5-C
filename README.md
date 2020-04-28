@@ -18,7 +18,7 @@ The Message Digest (MD) algorithms are a family of [one way hash functions][One-
 
 Each of the algorithms in the MD family were designed by [Ronald Rivest][RonaldRivest], a cryptographer and professor at MIT. 
 
-### History
+### History of Message Digest Algorithms
 
 | Year  | Description |
 |:-     |:-|
@@ -62,7 +62,107 @@ Originally designed as a [cryptographic hash function][CryptographicHashFunction
 
 * DO NOT USE for verifying the integrity of data after transmission or possible handling by a third party, e.g. via HTTP, stored on a USB device or network. Since collisions are now relatively easy to create, it is possible for a man in the middle to alter the data in such a way that the hash of the original and modified data match. This is a very serious consideration in relation to malware.
 
-## The Algorithm
+## The MD5 Algorithm
+
+### Terminology
+
+In the previous comparison of a number of hashing algorithms, it could be seen that MD5 uses certain bit sizes for the core components of its algorithm.
+
+| Algorithm | Output    | Internal State | Block | Word | # Rounds
+|:-         |:-         |:-              |:-     |:-    |:-
+| MD5       | 128       | 128            | 512   | 32   | 64
+
+#### Output
+The hash value produced by the algorithm which will always be 128 bits in length. In MD5 this is actually the modified initial internal state which is returned once all operations have been performed on it.
+
+#### Internal State
+This four-word buffer, composed of four 32-bit registers (A, B, C and D), should be initialised to the following hexadecimal values:
+
+<center>
+
+|Word   |Little Endian  | Big Endian    |
+|:-:    |:-             |:-             |
+|A      |01 23 45 67    |67 45 23 01    |
+|B      |89 ab cd ef    |ef cd ab 89    |
+|C      |fe dc ba 98    |98 ba dc fe    |
+|D      |76 54 32 10    |10 32 54 76    |
+
+</center>
+
+#### Block
+The input message is broken into chunks(blocks) of 512 bits in size. More on this is the Padding section.
+
+#### Word
+As outlined above, the internal state is maintained as a four-word buffer, i.e. 4 x 32-bit words to give an internal state size of 128 bits.
+
+* Rounds - the number of rounds of calculations to be peformed in the algorithm 64 tounds are used here although it can also be thought of as 4 stages of 16 similar operations.
+
+### Steps
+
+#### Step 1 and Step 2 - Append Padding Bits and Length ([RFC-1321][[RFC-1321]] Section 3.1 & 3.2)
+
+Since each block must be 512 bits in length, the original message may need to be padded so that its length is congruent to 448, modulo 512, i.e the entire length of the message should be padded to 64 bits short of being a multiple of 512 bits. Depending on the original length of the message, this may result in the need to add a new, fully padded block to the message.
+
+Different approaches to apdding could be taken, e.g. the entire message could be pre-processed to determine total number of blocks and how they should be padded. In my implementation, I have performed padding on-the-fly to reduce the space complexity of the algorithm with no real impact on the time complexity.
+
+(md5.c processNextMD5Block())
+
+```vb
+1. "Record the length of the original message."
+
+    var messageLength = number of bits in original message represented as a 64-bit number**
+
+2. "Append a single bit (one-bit) to the message."
+
+    append one-bit (1) to the message
+
+3. "Break the message up into blocks of 512 bits."
+
+4. "Record the length of the last 512-bit block."
+
+    var lastBlockLength = number of bits used in the last 512-bit block.
+
+4. "Depending on the length of 'lastBlockLength', do one the following:"
+
+    If lastBlockLength < 448 bits Then 
+        
+        pad with zero-bits until its length == 448 bits
+
+        append `b` to the last block 
+        
+    End If
+
+    If lastBlockLength == 448 bits Then append `b` to the last block End If
+    
+    If lastBlockLength > 448 AND messageLength < 512 bits Then
+        
+        append zero-bits (0) to last block until its length is 512 bits
+        
+        create a new block and pad with zero-bits until its length is 448 bits
+
+        append 'b'
+
+    End If
+```
+**In the unlikely event that b is greater than 2^64, then only
+   the low-order 64 bits of b are used. These bits are appended as two
+   32-bit words and appended low-order word first in accordance with the
+   previous conventions. ([RFC-1321][RFC-1321] Section 3.2)
+
+#### Step 3 - Initialise the Message Digest Buffer ([RFC-1321][RFC-1321] Section 3.3)
+
+As described earlier in the [Internal State section](#Internal-State), each word in this four-word buffer should be initialised to constant values.
+
+In my implementation of the algorithm I have used an alias for `uint32_t` which I have named `WORD`. Using this alias, I have created a `WORD` array named `H_MD5` to initialise and hold the internal state.
+
+I have initialised `H_MD5` as follows (according to [RFC-1321][RFC-1321] Section 3.3):
+    
+        WORD H_MD5[] = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
+
+#### Step 4 - Process Message in 16-Word Blocks ([RFC-1321][RFC-1321] Section 3.4)
+
+
+
 
 References:
 
