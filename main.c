@@ -1,22 +1,87 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <inttypes.h>
-#include <string.h>
-#include <stdbool.h>
-
-#include "lib/md5.h"
-#include "lib/sha256.h"
-#include "lib/custom-types.h"
-#include "lib/message-info.h"
-
-int quit()
-{
-    printf("Aborting!\n");
-    return 1;
-}
+#include "main.h"
 
 struct AlgorithmType supportedAlgorithms[3];
+
+int main(int argc, char *argv[])
+{
+    printf("INITIALISING");
+    initialise();
+
+    if (argc <= 1 || strcmp("--help", argv[1]) == 0)
+    {
+        printf("Error: not enough arguments supplied.\n");
+        printf("Error: expected at least inputArg argument.\n");
+
+        printHelp();
+        return 1;
+    }
+
+    
+    HashOptions hashOptions;
+    if (getOptions(&hashOptions, argc, argv) == 1)
+    {
+        return 1;
+    }
+    printf("GOT OPTIONS");
+
+    WORD *result = hash(hashOptions);
+
+    char *hashChars;
+    getHashChars(hashChars, result, hashOptions.algorithm);
+
+    if (hashOptions.isOutputToFile)
+    {
+        FILE *outFile = fopen(hashOptions.outputFilename, "w+");
+        fprintf(outFile, hashChars);
+        fclose(outFile);
+    }
+    printf("\nHASH: %s\n", hashChars);
+
+    return 0;
+}
+
+WORD *hash(HashOptions hashOptions)
+{
+    WORD *result;
+    if (hashOptions.algorithm == SHA256)
+    {
+        result = startSHA256Hash(hashOptions);
+    }
+    else // MD5
+    {
+        result = startMD5Hash(hashOptions);
+    }
+    return result;
+}
+
+void getHashChars(char *str, WORD *hash, AlgorithmEnum algorithm)
+{
+    int pos = 0;
+    if (algorithm == MD5)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            pos += sprintf(&str[pos], "%02x%02x%02x%02x", (hash[i] >> 0) & 0xFF, (hash[i] >> 8) & 0xFF, (hash[i] >> 16) & 0xFF, (hash[i] >> 24) & 0xFF);
+        }
+    }
+    else if (algorithm == SHA256)
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            pos += sprintf(&str[pos], "%08" PRIx32 "", hash[i]);
+        }
+    }
+}
+
+void saveHash(char *filename, WORD *hash, AlgorithmEnum algorithm)
+{
+    FILE *outFile = fopen(filename, "w+");
+    for (int i = 0; i < 4; i++)
+    {
+        fprintf(outFile, "%02x%02x%02x%02x", (hash[i] >> 0) & 0xFF, (hash[i] >> 8) & 0xFF, (hash[i] >> 16) & 0xFF, (hash[i] >> 24) & 0xFF);
+    }
+    fclose(outFile);
+}
 
 void initialise()
 {
@@ -41,48 +106,19 @@ void initialise()
     // supportedAlgorithms[2] = both;
 }
 
-AlgorithmType getAlgorithmType(AlgorithmEnum algorithm)
-{
-    for (int i = 0; i < 2; i++)
-    {
-        if (supportedAlgorithms[i].algorithm == algorithm)
-        {
-            return supportedAlgorithms[i];
-        }
-    }
-}
-
 void printHelp()
 {
     printf("\n\nHELP\n\n");
 }
 
-int main(int argc, char *argv[])
+int getOptions(HashOptions *hashOptions, int argc, char *argv[])
 {
-    initialise();
-
-    // for (int i = 0; i < argc; i++)
-    // {
-    //     printf("ARG: %s\n", argv[i]);
-    // }
-
-    // Expect at least one supplied argument, print the help screen and
-    // error out of program if not received.
-    if (argc <= 1 || strcmp("--help", argv[1]) == 0)
-    {
-        printf("Error: not enough arguments supplied.\n");
-        printf("Error: expected at least inputArg argument.\n");
-
-        printHelp();
-        return 1;
-    }
-
     // Create a new options struct to hold the arguments
-    HashOptions hashOptions;
-    hashOptions.isFile = false;
-    hashOptions.isString = false;
-    hashOptions.isOutputToFile = false;
-    hashOptions.isVerbose = false;
+
+    hashOptions->isFile = false;
+    hashOptions->isString = false;
+    hashOptions->isOutputToFile = false;
+    hashOptions->isVerbose = false;
 
     int argIndexParsed;
     // Get the first user arg
@@ -99,20 +135,20 @@ int main(int argc, char *argv[])
             return quit();
         }
         // Set the options accordingly...
-        hashOptions.isString = true;
+        hashOptions->isString = true;
         // Since --string must be the first arg, the second arg must be the string to hash
-        hashOptions.string = strcat(argv[argIndexParsed + 1], "\0");
+        hashOptions->string = strcat(argv[argIndexParsed + 1], "\0");
         argIndexParsed++;
     }
     else
     {
         // This must just be a filename...
-        hashOptions.isFile = true;
+        hashOptions->isFile = true;
         // Try to open the file
         char *filename = argv[argIndexParsed + 1];
         printf("Opening file: %s\n", inputArg);
-        hashOptions.file = fopen(argv[argIndexParsed + 1], "rb");
-        if (!hashOptions.file)
+        hashOptions->file = fopen(argv[argIndexParsed + 1], "rb");
+        if (!hashOptions->file)
         {
             printf("Error: couldn't open file %s\n", filename);
             return quit();
@@ -130,7 +166,7 @@ int main(int argc, char *argv[])
         // Check for verbose argument
         if (strcmp("--verbose", argv[i]) == 0)
         {
-            hashOptions.isVerbose = true;
+            hashOptions->isVerbose = true;
         }
 
         for (int j = 0; j < 2; j++)
@@ -139,69 +175,54 @@ int main(int argc, char *argv[])
             if (strcmp(supportedAlgorithms[j].flag, argv[i]) == 0)
             {
                 // printf("FOUND");
-                hashOptions.algorithm = supportedAlgorithms[j].algorithm;
+                hashOptions->algorithm = supportedAlgorithms[j].algorithm;
+            }
+            else
+            {
+                hashOptions->algorithm = MD5;
             }
         }
 
         if (strcmp("--output", argv[i]) == 0)
         {
-            hashOptions.isOutputToFile = true;
-            hashOptions.outputFilename = argv[i + 1];
+            hashOptions->isOutputToFile = true;
+            hashOptions->outputFilename = argv[i + 1];
         }
     }
 
-    printf("Using algorithm: %s\n", getAlgorithmType(hashOptions.algorithm).name);
-    char *strVerbose = (hashOptions.isVerbose) ? "Enabled" : "Disabled";
-    char *strOutput = (hashOptions.isOutputToFile) ? "Enabled" : "Disabled";
+    printf("Using algorithm: %s\n", getAlgorithmType(hashOptions->algorithm).name);
+    char *strVerbose = (hashOptions->isVerbose) ? "Enabled" : "Disabled";
+    char *strOutput = (hashOptions->isOutputToFile) ? "Enabled" : "Disabled";
     printf("Verbose mode: %s\n", strVerbose);
     printf("Output mode: %s\n", strOutput);
 
-    if (hashOptions.isOutputToFile)
+    if (hashOptions->isOutputToFile)
     {
-        printf("Output file: %s\n", hashOptions.outputFilename);
+        printf("Output file: %s\n", hashOptions->outputFilename);
     }
 
-    if (hashOptions.isVerbose && hashOptions.isFile)
+    if (hashOptions->isVerbose && hashOptions->isFile)
     {
         printf("GETTING FILE INFO\n");
         HashInfo hashInfo;
-        getFileInfo(hashOptions.file, &hashInfo);
+        getFileInfo(hashOptions->file, &hashInfo);
     }
-
-    if (hashOptions.algorithm == SHA256)
-    {
-        WORD *result = startSHA256Hash(hashOptions);
-
-        for (int i = 0; i < 8; i++)
-            printf("%08" PRIx32 "", result[i]);
-        printf("\n");
-
-        printf("\n");
-
-        if (hashOptions.isOutputToFile)
-        {
-            // printf("OUTPUTTING TO FILE %s\n", outputFileName);
-            FILE *outFile = fopen(hashOptions.outputFilename, "w+");
-            // printf("OPENED FILE %s\n", outputFileName);
-            for (int i = 0; i < 4; i++)
-            {
-                // printf("WRITING TO FILE %s\n", outputFileName);
-                fprintf(outFile, "%02x%02x%02x%02x", (result[i] >> 0) & 0xFF, (result[i] >> 8) & 0xFF, (result[i] >> 16) & 0xFF, (result[i] >> 24) & 0xFF);
-                // fprintf(outFile, "Hello....");
-            }
-            fclose(outFile);
-        }
-    }
-    else // MD5
-    {
-        WORD *result = startMD5Hash(hashOptions);
-        printf("\n");
-        for (int i = 0; i < 4; i++)
-        {
-            printf("%02x%02x%02x%02x", (result[i] >> 0) & 0xFF, (result[i] >> 8) & 0xFF, (result[i] >> 16) & 0xFF, (result[i] >> 24) & 0xFF);
-        }
-        printf("\n");
-    }
-
     return 0;
+}
+
+AlgorithmType getAlgorithmType(AlgorithmEnum algorithm)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (supportedAlgorithms[i].algorithm == algorithm)
+        {
+            return supportedAlgorithms[i];
+        }
+    }
+}
+
+int quit()
+{
+    printf("Aborting!\n");
+    return 1;
 }

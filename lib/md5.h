@@ -9,6 +9,10 @@
 #include "custom-types.h"
 #include "common-alg.h"
 
+WORD *startMD5Hash(HashOptions hashOptions);
+
+static int processNextMD5Block(MessageBlock *M, size_t numBytesRead, size_t *numBits, enum HashStatus *status);
+static void nextMD5Hash(WORD *M, WORD *H);
 /**
  * Define a WORD type which is an alias for a 32 bit unsigned integer type.
  **/
@@ -164,9 +168,5 @@ static void II(uint32_t *a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint
     *a = b + ROTL(sum, s);
 }
 
-WORD *startMD5Hash(HashOptions hashOptions);
-
-static int processNextMD5Block(MessageBlock *M, size_t numBytesRead, size_t *numBits, enum HashStatus *status);
-static void nextMD5Hash(WORD *M, WORD *H);
 
 #endif

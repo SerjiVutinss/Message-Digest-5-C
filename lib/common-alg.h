@@ -7,6 +7,9 @@
 
 #include "custom-types.h"
 
+// Function pointers in C
+// https://stackoverflow.com/questions/840501/how-do-function-pointers-in-c-work/840504#840504
+
 int processStringBlock(MessageBlock *M, char *buffer, size_t *numBits, enum HashStatus *status,
                        int (*processNextBlock)(MessageBlock *M, size_t numBytesRead, size_t *numBits, enum HashStatus *status));
 
