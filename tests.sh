@@ -24,59 +24,64 @@ declare -a files=(
     "./res/binary.bin"
 )
 
+declare -a strings=(
+    "helloworld"
+    "LoremIpsumissimplydummytextoftheprintingandtypesettingindustry.LoremIpsumhasbeentheindustry'sstandarddummytexteversincethe1500s,whenanunknownprintertookagalleyoftypeandscrambledittomakeatypespecimenbook.Ithassurvivednotonlyfivecenturies,butalsotheleapintoelectronictypesetting,remainingessentiallyunchanged.Itwaspopularisedinthe1960swiththereleaseofLetrasetsheetscontainingLoremIpsumpassages,andmorerecentlywithdesktoppublishingsoftwarelikeAldusPageMakerincludingversionsofLoremIpsum."
+    "TherearemanyvariationsofpassagesofLoremIpsumavailable,butthemajorityhavesufferedalterationinsomeform,byinjectedhumour,orrandomisedwordswhichdon'tlookevenslightlybelievable.IfyouaregoingtouseapassageofLoremIpsum,youneedtobesurethereisn'tanythingembarrassinghiddeninthemiddleoftext.AlltheLoremIpsumgeneratorsontheInternettendtorepeatpredefinedchunksasnecessary,makingthisthefirsttruegeneratorontheInternet.Itusesadictionaryofover200Latinwords,combinedwithahandfulofmodelsentencestructures,togenerateLoremIpsumwhichlooksreasonable.ThegeneratedLoremIpsumisthereforealwaysfreefromrepetition,injectedhumour,ornon-characteristicwordsetc."
+)
 
+# MD5 Files
+for input in "${files[@]}"; do
 
-# ## now loop through the above array
-# for i in "${files[@]}"
-# do
-#     file = $i
-#     result=$(./app-main ${i})
-#     (./app-main $file --verbose --md5)
+    output=$(./app-main $input)
+    hashResult=$(echo $output | rev | cut -d ' ' -f1 | rev)
+    md5sum=($(md5sum $input))
 
-#     hash=$(echo $result | rev | cut -d ' ' -f1 | rev)
-#     echo "$hash"
-#    # or do whatever with individual element of the array
-# done
+    if [ "$hashResult" = "$md5sum" ]; then
+        echo "   MD5 PASS $input"
+    else
+        echo "   MD5 FAIL $input"
+    fi
+done
 
+# SHA256 Files
+for input in "${files[@]}"; do
 
+    output=$(./app-main $input --sha256)
+    hashResult=$(echo $output | rev | cut -d ' ' -f1 | rev)
+    sha256sum=($(sha256sum $input))
 
-# file="./res/no-pad-block.txt"
-file="./res/abc.txt"
-# file="./res/quick-brown-fox.txt"
-# file="./res/two-pad-block.txt"
-# file="./res/no-pad-block.txt"
-# file="./res/full-block.txt"
-# file="./res/lorem-ipsum.txt"
-# file="./res/binary.bin"
-# file="app-main"
+    if [ "$hashResult" = "$sha256sum" ]; then
+        echo "SHA256 PASS $input"
+    else
+        echo "SHA256 FAIL $input"
+    fi
+done
 
+# MD5 Strings
+for input in "${strings[@]}"; do
 
-# ./app-main $file --verbose --sha256
-result="$(./app-main res/abc.txt)"
-# ./app-main $file --sha256  --string "The quick brown fox jumps over the lazy dog" --output myfile.txt
-# ./app-main --string "The quick brown fox jumps over the lazy dog" --output myfile.txt --sha256  
-# result=$(./app-main --string "The quick brown fox jumps over the lazy dog" --output myfile.txt)
-# ./app-main --string "The quick brown fox jumps over the lazy dog"
-# ./app-main --help
+    output=$(./app-main --string "$input")
+    hashResult=$(echo $output | rev | cut -d ' ' -f1 | rev)
+    md5sum=($(echo -n ${input} | md5sum))
 
-echo "$result"
+    if [ "$hashResult" = "$md5sum" ]; then
+        echo "   MD5 PASS '${input}'"
+    else
+        echo "   MD5 FAIL '${input}'"
+    fi
+done
 
-hash=$(echo $result | rev | cut -d ' ' -f1 | rev)
+# # SHA256 Strings
+for input in "${strings[@]}"; do
 
-echo $hash
+    output=$(./app-main --string "$input" --sha256)
+    hashResult=$(echo $output | rev | cut -d ' ' -f1 | rev)
+    sha256sum=($(echo -n ${input} | sha256sum))
 
-
-sha256sum=($(sha256sum $file))
-md5sum=($(md5sum $file))
-
-if [ "$hash" = "$md5sum" ]; then
-    echo "PASS"
-else
-    echo "FAIL"
-fi
-
-echo "------------------------"
-echo "SHA256: ${sha256sum}"
-echo "------------------------"
-echo "   MD5: ${md5sum}"
-echo "------------------------"
+    if [ "$hashResult" = "$sha256sum" ]; then
+        echo "SHA256 PASS '${input}'"
+    else
+        echo "SHA256 FAIL '${input}'"
+    fi
+done

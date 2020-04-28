@@ -50,40 +50,37 @@ int processNextSHA256Block(MessageBlock *M, size_t numBytesRead, uint64_t *numBi
 {
 
   int i;
-  // size_t numBytesRead;
-
   if (*status == FINISHED)
     return 0;
-
   if (*status == PAD_ZEROES)
   {
     // We need an all-padding block without the 1 bit.
-    for (int i = 0; i < 56; i++)
+    for (i = 0; i < 56; i++)
       M->eight[i] = 0x00;
     M->sixty_four[7] = htobe64(*numBits);
     *status = FINISHED;
-    return 1;
   }
 
-  // A full block was read, so nothing further needs to be done with this block.
-  // if (numBytesRead == 64)
-  //   return 1;
-  else if (numBytesRead < 56)
+  else
   {
-    // We can put all padding in this block.
-    M->eight[numBytesRead] = 0x80;
-    for (i = numBytesRead + 1; i < 56; i++)
-      M->eight[i] = 0x00;
-    M->sixty_four[7] = htobe64(*numBits);
-    *status = FINISHED;
-  }
-  else if (numBytesRead < 64)
-  {
-    // Otherwise we have read between 56 (incl) and 64 (excl) bytes.
-    M->eight[numBytesRead] = 0x80;
-    for (int i = numBytesRead + 1; i < 64; i++)
-      M->eight[i] = 0x00;
-    *status = PAD_ZEROES;
+
+    if (numBytesRead < 56)
+    {
+      // We can put all padding in this block.
+      M->eight[numBytesRead] = 0x80;
+      for (i = numBytesRead + 1; i < 56; i++)
+        M->eight[i] = 0x00;
+      M->sixty_four[7] = htobe64(*numBits);
+      *status = FINISHED;
+    }
+    else if (numBytesRead < 64)
+    {
+      // Otherwise we have read between 56 (incl) and 64 (excl) bytes.
+      M->eight[numBytesRead] = 0x80;
+      for (int i = numBytesRead + 1; i < 64; i++)
+        M->eight[i] = 0x00;
+      *status = PAD_ZEROES;
+    }
   }
 
   // Convert to host endianess, word-size-wise.

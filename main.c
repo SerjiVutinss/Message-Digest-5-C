@@ -16,13 +16,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    
-    HashOptions hashOptions;
+        HashOptions hashOptions;
     if (getOptions(&hashOptions, argc, argv) == 1)
     {
         return 1;
     }
-    printf("GOT OPTIONS");
 
     WORD *result = hash(hashOptions);
 
@@ -120,7 +118,7 @@ int getOptions(HashOptions *hashOptions, int argc, char *argv[])
     hashOptions->isOutputToFile = false;
     hashOptions->isVerbose = false;
 
-    int argIndexParsed;
+    int argIndexParsed = 0;
     // Get the first user arg
     char *inputArg = argv[1];
 
