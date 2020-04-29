@@ -61,7 +61,7 @@ Execute the program with the `--help` to display the following which includes so
 
 ## Example Outputs
 
-In this section I have provided two basic examples of verification of the program's output against the Linux command line tool ``md5sum`. This section is only for demonstration purposes and I have provided far more detail of the overall program testing in the OVERVIEW.md document.
+In this section I have provided two basic examples of verification of the program's output against the Linux command line tool `md5sum`. This section is only for demonstration purposes and I have provided far more detail of the overall program testing in the OVERVIEW.md document.
 
 Command: `$ ./hashC ./res/two-pad-block.txt --output hash-output.txt`
 
