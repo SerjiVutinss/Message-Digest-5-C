@@ -163,54 +163,54 @@ I have initialised `H_MD5` as follows (according to [RFC-1321][RFC-1321] Section
 
 
 
-
-References:
+---
+##### References:
 
 [RonaldRivest]: https://en.wikipedia.org/wiki/Ronald_Rivest
-* [Ronald Rivest - Wikipedia][RonaldRivest]
+###### [Ronald Rivest - Wikipedia][RonaldRivest]
 
 [RFC-1319]: https://tools.ietf.org/html/rfc1319
-* [RFC-1319 - The MD2 Message-Digest Algorithm (ietf.org)][RFC-1319]
+###### [RFC-1319 - The MD2 Message-Digest Algorithm (ietf.org)][RFC-1319]
 
 [RFC-1320]: https://tools.ietf.org/html/rfc1320
-* [RFC-1320 - The MD4 Message-Digest Algorithm (ietf.org)][RFC-1320]
+###### [RFC-1320 - The MD4 Message-Digest Algorithm (ietf.org)][RFC-1320]
 
 [RFC-1321]: https://www.ietf.org/rfc/rfc1321.txt
-* [RFC-1321 - The MD5 Message-Digest Algorithm (ietf.org)][RFC-1321]
+###### [RFC-1321 - The MD5 Message-Digest Algorithm (ietf.org)][RFC-1321]
 
 [RFC-6150]: https://tools.ietf.org/html/rfc6150
-* [RFC-6150 - MD4 to Historic Status (ietf.org)][RFC-6150]
+###### [RFC-6150 - MD4 to Historic Status (ietf.org)][RFC-6150]
 
 [RFC-6151]: https://tools.ietf.org/html/rfc6151
-* [RFC-6151 - Updated Security Considerations for the MD5 Message-Digest and the HMAC-MD5 Algorithms (ietf.org)][RFC-6151]
+###### [RFC-6151 - Updated Security Considerations for the MD5 Message-Digest and the HMAC-MD5 Algorithms (ietf.org)][RFC-6151]
 
 [IETF]: https://www.ietf.org/
-* [Internet Engineering Task Force][IETF]
+###### [Internet Engineering Task Force][IETF]
 
 [One-Way-Hash-Functions]: https://www.cs.rit.edu/~ark/lectures/onewayhash/onewayhash.shtml
-* [Cryptographic One-Way Hash Functions - Prof. Alan Kaminsky, Department of Computer Science, Rochester Institute of Technology][One-Way-Hash-Functions]
+###### [Cryptographic One-Way Hash Functions - Prof. Alan Kaminsky, Department of Computer Science, Rochester Institute of Technology][One-Way-Hash-Functions]
 
 [CryptographicHashFunction]: https://en.wikipedia.org/wiki/Cryptographic_hash_function
-* [Cryptographic Hash Function][CryptographicHashFunction]
+###### [Cryptographic Hash Function][CryptographicHashFunction]
 
 
 [OpenSSL]: https://www.openssl.org/
-* [OpenSSL][OpenSSL]
+###### [OpenSSL][OpenSSL]
 
 [BirthdayAttack]: https://en.wikipedia.org/wiki/Birthday_attack
-* [Birthday Attack][BirthdayAttack]
+###### [Birthday Attack][BirthdayAttack]
 
 [MD5CRK]: https://en.wikipedia.org/wiki/MD5CRK
-* [MD5CRK][MD5CRK]
+###### [MD5CRK][MD5CRK]
 
 [VlastimilKlima]: https://en.wikipedia.org/wiki/Vlastimil_Klima
-* [Vlastimil Klima - The man who broke MD5 and SSL][VlastimilKlima]
+###### [Vlastimil Klima - The man who broke MD5 and SSL][VlastimilKlima]
 
 [Marc_Stevens]: https://en.wikipedia.org/wiki/Marc_Stevens_(cryptology)
-* [Marc Stevens - Cryptographer][Marc_Stevens]
+###### [Marc Stevens - Cryptographer][Marc_Stevens]
 
 [SEI]: https://en.wikipedia.org/wiki/CMU_Software_Engineering_Institute
-* [Software Engineering Institute (SEI))][SEI]]
+###### [Software Engineering Institute (SEI)][SEI]
 
 [FlameMalware]: https://en.wikipedia.org/wiki/Flame_(malware)
-* [Flame (Malware)][FlameMalware]
+###### [Flame (Malware)][FlameMalware]
