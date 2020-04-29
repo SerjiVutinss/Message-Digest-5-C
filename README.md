@@ -30,7 +30,7 @@ This document only relates to the downloading, compilation and running of the pr
     * Use the provided script: `$ chmod a+x build.sh && ./build.sh`
     * Build manually: `$ gcc main.c lib/md5.c lib/sha256.c lib/message-info.c lib/common-alg.c -lm -o hashC`
 
-### **Run**
+### **Run the Program**
 Execute the program with the `--help` to display the following which includes some examples of how to run the program.
 
     Usage:
@@ -101,3 +101,5 @@ Verification command: `echo -n "The quick brown fox jumps over the lazy dog" | m
 ---
 
 [Overview]: https://github.com/SerjiVutinss/Message-Digest-5-C/blob/master/OVERVIEW.md
+[RFC-1321]: https://www.ietf.org/rfc/rfc1321.txt
+[IETF]: https://www.ietf.org/
