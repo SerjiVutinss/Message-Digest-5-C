@@ -1,7 +1,7 @@
 # Message-Digest-5-C
 An implementation of the Message Digest 5 algorithm in C.
 
-This document only relates to the downloading, compilation and running of the program. For more detailed documentation concerning the MD5 algorithm, its history, uses and implementation in this program, please see the !!OVERVIEW.md document!!
+This document only relates to the downloading, compilation and running of the program. For more detailed documentation concerning the MD5 algorithm, its history, uses and implementation in this program, please see the [Overview][Overview] document, also in this repository.
 
 ### Project Brief
 
@@ -61,7 +61,7 @@ Execute the program with the `--help` to display the following which includes so
 
 ## Example Outputs
 
-In this section I have provided two basic examples of verification of the program's output against the Linux command line tool `md5sum`. This section is only for demonstration purposes and I have provided far more detail of the overall program testing in the OVERVIEW.md document.
+In this section I have provided two basic examples of verification of the program's output against the Linux command line tool `md5sum`. This section is only for demonstration purposes and I have provided far more detail of the overall program testing in the [Overview][Overview] document.
 
 Command: `$ ./hashC ./res/two-pad-block.txt --output hash-output.txt`
 
@@ -99,3 +99,5 @@ Verification command: `echo -n "The quick brown fox jumps over the lazy dog" | m
 
     Verification Output: 9e107d9d372bb6826bd81d3542a419d6
 ---
+
+[Overview]: https://github.com/SerjiVutinss/Message-Digest-5-C/blob/master/OVERVIEW.md
