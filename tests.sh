@@ -2,7 +2,10 @@ clear
 # Added link flag for math.h
 # gcc main.c sha256.c lib/md5-alg.c lib/message-info.c lib/message-block.c -lm -o app-main
 
-gcc main.c lib/md5.c lib/sha256.c lib/message-info.c lib/common-alg.c -lm -o app-main
+
+outputFile=hash
+
+gcc main.c lib/md5.c lib/sha256.c lib/message-info.c lib/common-alg.c -lm -o $outputFile
 
 # gcc md5-c.c sha256.c message-info.c -lm -o md5-c
 # gcc md5-c.c -lm -o md5-c
@@ -26,14 +29,14 @@ declare -a files=(
 
 declare -a strings=(
     "helloworld"
-    "LoremIpsumissimplydummytextoftheprintingandtypesettingindustry.LoremIpsumhasbeentheindustry'sstandarddummytexteversincethe1500s,whenanunknownprintertookagalleyoftypeandscrambledittomakeatypespecimenbook.Ithassurvivednotonlyfivecenturies,butalsotheleapintoelectronictypesetting,remainingessentiallyunchanged.Itwaspopularisedinthe1960swiththereleaseofLetrasetsheetscontainingLoremIpsumpassages,andmorerecentlywithdesktoppublishingsoftwarelikeAldusPageMakerincludingversionsofLoremIpsum."
+    "LoremIpsumissimplydummytextoftheprinti ngandtypesettingindustry.LoremIpsumhasbeentheindustry'sstandarddummytexteversincethe1500s,whenanunknownprintertookagalleyoftypeandscrambledittomakeatypespecimenbook.Ithassurvivednotonlyfivecenturies,butalsotheleapintoelectronictypesetting,remainingessentiallyunchanged.Itwaspopularisedinthe1960swiththereleaseofLetrasetsheetscontainingLoremIpsumpassages,andmorerecentlywithdesktoppublishingsoftwarelikeAldusPageMakerincludingversionsofLoremIpsum."
     "TherearemanyvariationsofpassagesofLoremIpsumavailable,butthemajorityhavesufferedalterationinsomeform,byinjectedhumour,orrandomisedwordswhichdon'tlookevenslightlybelievable.IfyouaregoingtouseapassageofLoremIpsum,youneedtobesurethereisn'tanythingembarrassinghiddeninthemiddleoftext.AlltheLoremIpsumgeneratorsontheInternettendtorepeatpredefinedchunksasnecessary,makingthisthefirsttruegeneratorontheInternet.Itusesadictionaryofover200Latinwords,combinedwithahandfulofmodelsentencestructures,togenerateLoremIpsumwhichlooksreasonable.ThegeneratedLoremIpsumisthereforealwaysfreefromrepetition,injectedhumour,ornon-characteristicwordsetc."
 )
 
 # MD5 Files
 for input in "${files[@]}"; do
 
-    output=$(./app-main $input)
+    output=$(./$outputFile $input)
     hashResult=$(echo $output | rev | cut -d ' ' -f1 | rev)
     md5sum=($(md5sum $input))
 
@@ -47,7 +50,7 @@ done
 # SHA256 Files
 for input in "${files[@]}"; do
 
-    output=$(./app-main $input --sha256)
+    output=$(./$outputFile $input --sha256)
     hashResult=$(echo $output | rev | cut -d ' ' -f1 | rev)
     sha256sum=($(sha256sum $input))
 
@@ -61,7 +64,7 @@ done
 # MD5 Strings
 for input in "${strings[@]}"; do
 
-    output=$(./app-main --string "$input")
+    output=$(./$outputFile --string "$input")
     hashResult=$(echo $output | rev | cut -d ' ' -f1 | rev)
     md5sum=($(echo -n ${input} | md5sum))
 
@@ -75,7 +78,7 @@ done
 # # SHA256 Strings
 for input in "${strings[@]}"; do
 
-    output=$(./app-main --string "$input" --sha256)
+    output=$(./$outputFile --string "$input" --sha256)
     hashResult=$(echo $output | rev | cut -d ' ' -f1 | rev)
     sha256sum=($(echo -n ${input} | sha256sum))
 

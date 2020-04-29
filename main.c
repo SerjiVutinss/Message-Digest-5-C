@@ -4,19 +4,24 @@ struct AlgorithmType supportedAlgorithms[3];
 
 int main(int argc, char *argv[])
 {
-    printf("INITIALISING");
     initialise();
 
-    if (argc <= 1 || strcmp("--help", argv[1]) == 0)
+    if (argc == 2 && strcmp("--help", argv[1]) == 0)
     {
-        printf("Error: not enough arguments supplied.\n");
-        printf("Error: expected at least inputArg argument.\n");
-
         printHelp();
         return 1;
     }
+    else if (argc <= 1)
+    {
+        printf("Error: Not enough arguments supplied");
+        printf(" - expected at least a filename or --help.\n");
+        printf("Showing --help:\n\n");
+        printHelp();
 
-        HashOptions hashOptions;
+        return 1;
+    }
+
+    HashOptions hashOptions;
     if (getOptions(&hashOptions, argc, argv) == 1)
     {
         return 1;
@@ -106,7 +111,31 @@ void initialise()
 
 void printHelp()
 {
-    printf("\n\nHELP\n\n");
+    char programName[] = "hash";
+    printf("Usage:\n");
+    printf("\tFile:   %s [FILE] [OPTION]...\n", programName);
+    printf("\tString: %s --string [STRING] [OPTION]...\n\n", programName);
+    printf("Calculate and print out the MD5(default) or SHA256 hash of the input FILE or STRING.\n");
+    printf("NOTE: If string hashing is to be used, --string MUST be the first argument\n\n");
+
+    printf("\t--string [STRING] \tUse the next argument as input. --string MUST be the first argument passed if it used.\n");
+    printf("\t\t\t\tIf the string includes whitespace, it should be surrounded by quotes.\n");
+    printf("\n");
+    
+    printf("\t--sha256 \t\tUse the SHA256 algorithm to calculate the hash.\n");
+    printf("\n");
+    printf("\t--output [OUTPUT]\tWrite the hash to the file, [OUTPUT]. MUST be followed by the output filename.\n");
+    printf("\n");
+    printf("\t--verbose \t\tPrint detailed hash information to the screen.\n");
+    printf("\n");
+
+    printf("Example usage:\n");
+    printf("\t$ %s input.txt - hash the contents of input.txt using MD5 and print the hash to the screen. \n", programName);
+    printf("\t$ %s --string \"hello world\" - hash the string \"hello world\" and print the hash to the screen. \n", programName);
+
+    printf("\t$ %s input.txt --sha256 - hash the contents of input.txt using SHA256 and print the hash to the screen. \n", programName);
+    printf("\t$ %s input.txt --output output.txt - hash the contents of input.txt, print the hash to the screen and also write it to the file output.txt. \n", programName);
+    printf("\n");
 }
 
 int getOptions(HashOptions *hashOptions, int argc, char *argv[])
