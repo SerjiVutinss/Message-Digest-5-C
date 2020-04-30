@@ -209,6 +209,8 @@ int getOptions(HashOptions *hashOptions, int argc, char *argv[])
         if (strcmp("--verbose", argv[i]) == 0)
         {
             hashOptions->isVerbose = true;
+            argIndexParsed++;
+            break;
         }
 
         if (foundAlgorithmArg == false)
@@ -221,6 +223,8 @@ int getOptions(HashOptions *hashOptions, int argc, char *argv[])
                     // printf("FOUND");
                     hashOptions->algorithm = supportedAlgorithms[j].algorithm;
                     foundAlgorithmArg = true;
+                    argIndexParsed++;
+                    break;
                 }
             }
         }
@@ -229,6 +233,8 @@ int getOptions(HashOptions *hashOptions, int argc, char *argv[])
         {
             hashOptions->isOutputToFile = true;
             hashOptions->outputFilename = argv[i + 1];
+            argIndexParsed++;
+            break;
         }
     }
 

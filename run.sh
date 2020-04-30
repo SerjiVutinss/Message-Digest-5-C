@@ -21,9 +21,9 @@ file="./res/abc.txt"
 # file="app-main"
 
 
-./$programName $file
+# ./$programName $file --sha256
 # ./$programName $file
-# ./$programName $file --string "The quick brown fox jumps over the lazy dog" --output myfile.txt #--sha256  
+./$programName $file --string "The quick brown fox jumps over the lazy dog" --output myfile.txt --sha256  
 # ./app-main --string "The quick brown fox jumps over the lazy dog" --output myfile.txt
 # ./app-main $file --output hash-output.txt
 # ./app-main --string "The quick brown fox jumps over the lazy dog"

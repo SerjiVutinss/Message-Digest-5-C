@@ -1,19 +1,11 @@
-clear
-# Added link flag for math.h
-# gcc main.c sha256.c lib/md5-alg.c lib/message-info.c lib/message-block.c -lm -o app-main
+./run.sh
 
 
-outputFile=hash
+# clear
 
-gcc main.c lib/md5.c lib/sha256.c lib/message-info.c lib/common-alg.c -lm -o $outputFile
+outputFile=hashC
 
-# gcc md5-c.c sha256.c message-info.c -lm -o md5-c
-# gcc md5-c.c -lm -o md5-c
-# Run
-
-# MD5 tests
-
-# all files
+# gcc main.c lib/md5.c lib/sha256.c lib/message-info.c lib/common-alg.c -lm -o $outputFile
 
 ## declare an array variable
 declare -a files=(

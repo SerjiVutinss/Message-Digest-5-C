@@ -57,9 +57,9 @@ Execute the program with the `--help` to display the following which includes so
 
 ---
 
-## Example Outputs
+### Example Outputs
 
-In this section I have provided two basic examples of verification of the program's output against the Linux command line tool `md5sum`. This section is only for demonstration purposes and I have provided far more detail of the overall program testing in the [Overview][Overview] document.
+In this section I have provided two basic examples of verification of the program's output against the Linux command line tool `md5sum`. This section is only for demonstration purposes and I have provided far more detail of the overall program testing in the next section.
 
 Command: `$ ./hashC ./res/two-pad-block.txt --output hash-output.txt`
 
@@ -97,6 +97,48 @@ Verification command: `echo -n "The quick brown fox jumps over the lazy dog" | m
 
     Verification Output: 9e107d9d372bb6826bd81d3542a419d6
 ---
+
+## Tests - [tests.sh]
+
+Rather than building the tests into my program in C, I opted to use a script to automate the testing of the programs's output against known good values for the messages provided as inputs to the program. As this program was developed in a Linux environment, I created a Bash script to compare the hash results. A similar script could easily be written for Windows in PowerShell should the need arise.
+
+I have broken the test script into two distinct sections - Files and Strings. Files uses filenames as input and Strings uses just string values as input. 
+
+The `/res` folder of this repository contains a number of files used for testing. A number of these files (e.g. `no-pad-block.txt`, `full-block.txt`, etc ) are designed to test the algorithm on the boundaries of its determination and creation of block sizes. For example, `full-block.txt` is 64 bytes in size and `one-pad-block.txt` is 56 bytes in size. I have also included a small binary file (`binary.bin`) which is a very early build of this program.
+
+The flow of the test script is as follows:
+
+### Files
+
+1. Create an array of filenames.
+2. For each `filename` in filenames, run this program using the filename: '`hashC filename`'.
+3. Store the output of this program as a variable `output`.
+4. Echo `output` to stdout and pipe it to '`rev`', '`cut -d ' ' -f1`' and '`rev`' respectively:
+    1. `rev` - reverses the output, meaning that the hash result text is now at the beginning of the string, although reversed.
+    2. `cut -d ' ' -f1` - splits the output on the space character and then takes the first element, which is the reversed hash result.
+    3. `rev` - since the hash result is reversed, reverse it again to restore it to its original ordering.
+5. Store the result of the previous step as the variable `hashResult`.
+6. Run the md5sum Linux command line tool: '`md5sum filename`' and store its output as `md5sum`.
+7. Compare `hashResult` to `md5sum` - if they are equal, the test has passed, otherwise it has failed.
+
+### Strings
+
+Similar to testing files, although the inputs to both this program and the md5sum command line tool are slightly different:
+
+1. Create an array of strings.
+2. For each `str` in strings, run this program using the string: '`hashC --string "str"`'.
+3. Store the output of this program as a variable `output`.
+4. Echo `output` to stdout and pipe it to '`rev`', '`cut -d ' ' -f1`' and '`rev`' respectively:
+    1. `rev` - reverses the output, meaning that the hash result text is now at the beginning of the string, although reversed.
+    2. `cut -d ' ' -f1` - splits the output on the space character and then takes the first element, which is the reversed hash result.
+    3. `rev` - since the hash result is reversed, reverse it again to restore it to its original ordering.
+5. Store the result of the previous step as the variable `hashResult`.
+6. Echo the string to stdout and pipe it to the md5sum Linux command line tool: '`echo -n str | md5sum`' and store its output as `md5sum`.
+7. Compare `hashResult` to `md5sum` - if they are equal, the test has passed, otherwise it has failed.
+
+
+
+
 
 ## Introduction and Background of MD5 Algorithm
 
@@ -157,10 +199,11 @@ Originally designed as a [cryptographic hash function][CryptographicHashFunction
 * DO NOT USE for verifying the integrity of data after transmission or possible handling by a third party, e.g. via HTTP, stored on a USB device or network. Since collisions are now relatively easy to create, it is possible for a man in the middle to alter the data in such a way that the hash of the original and modified data match. This is a very serious consideration in relation to malware.
 
 ---
+---
 
-## The MD5 Algorithm
+# The MD5 Algorithm
 
-### Terminology
+## Terminology
 
 In the previous comparison of a number of hashing algorithms, it could be seen that MD5 uses certain bit sizes for the core components of its algorithm.
 
@@ -194,9 +237,11 @@ As outlined above, the internal state is maintained as a four-word buffer, i.e. 
 **Rounds**
 The number of rounds of calculations to be peformed in the algorithm. 64 rounds are used here although it can also be thought of as 4 stages of 16 similar operations.
 
-### Algorithm Steps
+---
 
-#### Step 1 and Step 2 - Append Padding Bits and Length ([RFC-1321][RFC-1321] Section 3.1 & 3.2)
+## Algorithm Steps
+
+### **Step 1 and Step 2 - Append Padding Bits and Length ([RFC-1321][RFC-1321] Section 3.1 & 3.2)**
 
 Since each block must be 512 bits in length, the original message may need to be padded so that its length is congruent to 448, modulo 512, i.e the entire length of the message should be padded to 64 bits short of being a multiple of 512 bits. Depending on the original length of the message, this may result in the need to add a new, fully padded block to the message.
 
@@ -246,7 +291,7 @@ Different approaches to padding could be taken, e.g. the entire message could be
    32-bit words and appended low-order word first in accordance with the
    previous conventions. ([RFC-1321][RFC-1321] Section 3.2)
 
-#### Step 3 - Initialise the Message Digest Buffer ([RFC-1321][RFC-1321] Section 3.3)
+### **Step 3 - Initialise the Message Digest Buffer ([RFC-1321][RFC-1321] Section 3.3)**
 
 As described earlier in the [Internal State section](#Internal-State), each word in this four-word buffer should be initialised to constant values.
 
@@ -256,7 +301,7 @@ I have initialised `H_MD5` as follows (according to [RFC-1321][RFC-1321] Section
     
         WORD H_MD5[] = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476 };
 
-#### Step 4 - Process Message in 16-Word Blocks ([RFC-1321][RFC-1321] Section 3.4)
+### **Step 4 - Process Message in 16-Word Blocks ([RFC-1321][RFC-1321] Section 3.4)**
 
 **Functions F, G, H and I:**
 These auxiliary functions, each taking three 32-bit words as inputs and producing one 32-bit word as their outputs must be defined. RFC-1321 defines these functions as:
@@ -290,9 +335,9 @@ Additionally, not specified in RFC-1321, it is useful to create the functions FF
 
 **Round-Shift Amounts (S):** Specified in the description of each round in RFC-1321, I have used an array for these values. They determine how many bits are to be shifted in each of the algorithm's rounds. They are used solely as an input argument to the Rotate Left function.
 
-### Process Each Message Block
+#### Process Message in 16-word (512-bit) Blocks
 
-Using the functions outlined above, RFC-1321 states to do the following with each message block:
+Using the functions and values outlined above, RFC-1321 states to do the following with each message block:
 
 * Break each block into 16 32-bit chunks (Words), e.g. M[16];
 
@@ -307,8 +352,9 @@ Using the functions outlined above, RFC-1321 states to do the following with eac
 
 * Once all round calculations have been performed, the initial values of H_MD5 are now incremented by the values A, B, C and D respectively. The current value of H_MD5 at this point is the hash value at this point. If the message consists of multiple blocks, this new value of H_MD5 is then used as an initialiser to calculate the next block's hash which is again added to H_MD5, and so on until no blocks remain. If this is a single-block hash, this is the result of the hash.
 
+---
 
-
+## Complexity
 
 ---
 ##### References:
@@ -364,3 +410,4 @@ Using the functions outlined above, RFC-1321 states to do the following with eac
 
 [md5.h]: https://github.com/SerjiVutinss/Message-Digest-5-C/blob/master/lib/md5.h
 [md5.c]: https://github.com/SerjiVutinss/Message-Digest-5-C/blob/master/lib/md5.c
+[tests.sh]: https://github.com/SerjiVutinss/Message-Digest-5-C/blob/master/tests.sh
