@@ -11,9 +11,9 @@ gcc main.c lib/md5.c lib/sha256.c lib/message-info.c lib/common-alg.c -lm -o $pr
 # Run
 
 # file="./res/no-pad-block.txt"
-# file="./res/abc.txt"
+file="./res/abc.txt"
 # file="./res/quick-brown-fox.txt"
-file="./res/two-pad-block.txt"
+# file="./res/two-pad-block.txt"
 # file="./res/one-pad-block.txt"
 # file="./res/full-block.txt"
 # file="./res/lorem-ipsum.txt"
@@ -21,10 +21,10 @@ file="./res/two-pad-block.txt"
 # file="app-main"
 
 
-# ./app-main $file --verbose --sha256
+./$programName $file --verbose --sha256 --output hash-output.txt
 # ./$programName $file
 # ./$programName $file --string "The quick brown fox jumps over the lazy dog" --output myfile.txt #--sha256  
-./app-main --string "The quick brown fox jumps over the lazy dog" --output myfile.txt
+# ./app-main --string "The quick brown fox jumps over the lazy dog" --output myfile.txt
 # ./app-main $file --output hash-output.txt
 # ./app-main --string "The quick brown fox jumps over the lazy dog"
 # ./app-main --help

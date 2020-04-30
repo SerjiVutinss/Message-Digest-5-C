@@ -14,7 +14,7 @@
 #include "lib/message-info.h"
 
 WORD *hash(HashOptions hashOptions);
-void initialise();
+void initialiseSupportedAlgorithms();
 void printHelp();
 void getHashChars(char *str, WORD *hash, AlgorithmEnum algorithm);
 

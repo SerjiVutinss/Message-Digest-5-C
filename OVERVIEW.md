@@ -24,7 +24,7 @@ Each of the algorithms in the MD family were designed by [Ronald Rivest][RonaldR
 |:-     |:-|
 | 1989 | [MD2][RFC-1319] developed and optimised for 8-bit computers. |
 | 1990 | [MD4][RFC-1320] developed.
-| 1991 | [MD5][RFC-1321] designed. designed Den Boer and Bosselaers demonstrate weaknesses of MD4 in a paper published in 1991.
+| 1991 | [MD5][RFC-1321] designed. Den Boer and Bosselaers demonstrate weaknesses of MD4 in a paper published in 1991.
 | 1992 | [RFC-1321][RFC-1321] published by Rivest, specifying the MD5 algorithm.
 | 1995 | The first full-round MD4 collision attack was found by Hans Dobbertin, which took only seconds to carry out at that time. A preimage attack is theorised as being possible.
 | 1996 | Collision of MD5 compression function announced. While not an attack on the complete MD5 function, cryptographers recommend switching to an alternative.
@@ -90,12 +90,13 @@ This four-word buffer, composed of four 32-bit registers (A, B, C and D), should
 </center>
 
 #### Block
-The input message is broken into chunks(blocks) of 512 bits in size. More on this is the Padding section.
+The input message is broken into chunks (blocks) of 512 bits in size. More on this is the Padding section.
 
 #### Word
 As outlined above, the internal state is maintained as a four-word buffer, i.e. 4 x 32-bit words to give an internal state size of 128 bits.
 
-* Rounds - the number of rounds of calculations to be peformed in the algorithm 64 tounds are used here although it can also be thought of as 4 stages of 16 similar operations.
+#### Rounds 
+The number of rounds of calculations to be peformed in the algorithm. 64 rounds are used here although it can also be thought of as 4 stages of 16 similar operations.
 
 ### Steps
 
@@ -103,7 +104,7 @@ As outlined above, the internal state is maintained as a four-word buffer, i.e. 
 
 Since each block must be 512 bits in length, the original message may need to be padded so that its length is congruent to 448, modulo 512, i.e the entire length of the message should be padded to 64 bits short of being a multiple of 512 bits. Depending on the original length of the message, this may result in the need to add a new, fully padded block to the message.
 
-Different approaches to apdding could be taken, e.g. the entire message could be pre-processed to determine total number of blocks and how they should be padded. In my implementation, I have performed padding on-the-fly to reduce the space complexity of the algorithm with no real impact on the time complexity.
+Different approaches to padding could be taken, e.g. the entire message could be pre-processed to determine total number of blocks and how they should be padded. In my implementation, I have performed padding on-the-fly to reduce the space complexity of the algorithm with no real impact on the time complexity.
 
 (md5.c processNextMD5Block())
 

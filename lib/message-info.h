@@ -4,8 +4,12 @@
 #include <stdio.h>
 #include <math.h>
 #include <inttypes.h>
+#include <string.h>
 
-typedef struct HashInfo {
+#include "custom-types.h"
+
+typedef struct HashInfo
+{
     // User set members
     long inputBytes;
     // Calculated members
@@ -14,12 +18,12 @@ typedef struct HashInfo {
     long fullBlocks;
 } HashInfo;
 
-void printHashInfo(HashInfo *h);
+void printHashInfo(HashOptions hashOptions);
 
-void calculateHashInfo(HashInfo *h, long inputBytes);
+static void calculateHashInfo(HashInfo *h, long inputBytes);
 
-long getFileBytes(FILE *file);
+static long getFileBytes(FILE *file);
 
-void getFileInfo(FILE *file, HashInfo *h);
+static void getFileInfo(FILE *file, HashInfo h);
 
 #endif

@@ -7,10 +7,15 @@
 
 #include "sha256.h"
 
+bool printSHA256 = false;
+int sha256Blocks = 0;
+
 WORD *startSHA256Hash(HashOptions hashOptions)
 {
 
-  printf("STARTING SHA256 HASH\n");
+  printSHA256 = hashOptions.isVerbose;
+
+  printf("\nStarting SHA256 hash...\n");
 
   MessageBlock M;                // Declare a message block which file bytes will be read into.
   uint64_t numBits = 0;          // Keep track of the number of bits read from the file.
@@ -26,6 +31,7 @@ WORD *startSHA256Hash(HashOptions hashOptions)
     // While there are still bytes in the file, keep processing blocks as needed.
     while (processFileBlock(&M, hashOptions.file, &numBits, &status, processFunctionPtr))
     {
+      sha256Blocks += 1;
       // Hash the current block, passing in both the Block and the MD5 initialisers.
       nextSHA256Hash(M.thirty_two, H_SHA256);
     }
@@ -98,9 +104,23 @@ void nextSHA256Hash(WORD *M, WORD *H)
   WORD a, b, c, d, e, f, g, h, T1, T2;
   int t;
 
-  // for (int i = 0; i < 16; i++) {
-  //   W[i] = M[i];
-  //   printf("M: %08" PRIx32 "\n", W[i]);
+  printf("\nBlock %d: ", sha256Blocks);
+  if (printSHA256)
+  {
+    // Print out this block
+    for (int i = 0; i < 16; i++)
+    {
+      printf("%08" PRIx32 " ", M[i]);
+    }
+    printf("\n");
+  }
+
+  // {
+  //   for (int i = 0; i < 16; i++)
+  //   {
+  //     W[i] = M[i];
+  //     printf("M: %08" PRIx32 "\n", W[i]);
+  //   }
   // }
 
   for (t = 0; t < 16; t++)
@@ -145,49 +165,3 @@ void nextSHA256Hash(WORD *M, WORD *H)
   H[6] += g;
   H[7] += h;
 }
-
-// WORD *startSHA256FileHash(FILE *inFile)
-// {
-
-//   // The current padded message block.
-//   MessageBlock M;
-//   uint64_t numBits = 0;
-//   HashStatus status = READ;
-
-//   int (*processFunctionPtr)(MessageBlock * M, size_t numBytesRead, size_t * numBits, enum HashStatus * status);
-//   processFunctionPtr = &processNextSHA256Block;
-//   // Read through all of the padded message blocks.
-//   while (processFileBlock(&M, inFile, &numBits, &status, processNextSHA256Block));
-//   {
-//     // Calculate the next hash value.
-//     nextSHA256Hash(M.thirty_two, H_SHA256);
-//   }
-
-//   // Print the hash.
-//   // for (int i = 0; i < 8; i++)
-//   //   printf("%08" PRIx32 "", H_SHA256[i]);
-//   // printf("\n");
-
-//   fclose(inFile);
-
-//   return H_SHA256;
-// }
-
-// WORD *startSHA256StringHash(char *inputString)
-// {
-//   MessageBlock M;                // Declare a message block which file bytes will be read into.
-//   uint64_t numBits = 0;          // Keep track of the number of bits read from the file.
-//   enum HashStatus status = READ; // Current status of the algorithm.
-
-//   int (*processFunctionPtr)(MessageBlock * M, size_t numBytesRead, size_t * numBits, enum HashStatus * status);
-//   processFunctionPtr = &processNextSHA256Block;
-
-//   // While there are still bytes in the file, keep processing blocks as needed.
-//   while (processStringBlock(&M, inputString, &numBits, &status, processFunctionPtr))
-//   {
-//     // Hash the current block, passing in both the Block and the MD5 initialisers.
-//     nextSHA256Hash(M.thirty_two, H_SHA256);
-//   }
-
-//   return H_SHA256;
-// }
