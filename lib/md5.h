@@ -143,28 +143,24 @@ static uint32_t ROTL(uint32_t x, uint32_t c)
 static void FF(uint32_t *a, uint32_t b, uint32_t c, uint32_t d, uint32_t k, uint32_t s, uint32_t ac)
 {
     uint32_t sum = (*a + F(b, c, d) + k + ac);
-    uint32_t f = F(b, c, d);
     *a = b + ROTL(sum, s);
 }
 // Round 2
 static void GG(uint32_t *a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac)
 {
     uint32_t sum = (*a + G(b, c, d) + x + ac);
-    uint32_t g = G(b, c, d);
     *a = b + ROTL(sum, s);
 }
 // Round 3
 static void HH(uint32_t *a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac)
 {
     uint32_t sum = (*a + H(b, c, d) + x + ac);
-    uint32_t h = H(b, c, d);
     *a = b + ROTL(sum, s);
 }
 // Round 4
 static void II(uint32_t *a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac)
 {
     uint32_t sum = (*a + I(b, c, d) + x + ac);
-    uint32_t i = I(b, c, d);
     *a = b + ROTL(sum, s);
 }
 

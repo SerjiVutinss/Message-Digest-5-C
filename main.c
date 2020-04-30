@@ -232,6 +232,11 @@ int getOptions(HashOptions *hashOptions, int argc, char *argv[])
         }
     }
 
+    if (foundAlgorithmArg == false)
+    {
+        hashOptions->algorithm = MD5;
+    }
+
     // Print this here because if file failed to open, quit() would have been called.
     if (hashOptions->isVerbose == true)
     {

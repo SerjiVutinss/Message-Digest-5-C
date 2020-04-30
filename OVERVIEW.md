@@ -6,7 +6,99 @@ An implementation of the Message Digest 5 algorithm in C.
 * Write a program in the C programming language that calculates the MD5 hash digest of an input. The algorithm is specified in the [Request For Comments 1321 document][RFC-1321] supplied by the [Internet Engineering Task Force][IETF].
 * The program must perform the algorithm correctly  - it is up to the developer to decide which types of input the algorithm operates on, e.g. filename, string, url, etc.
 
-## Background
+---
+
+## Downloading and Running the Program
+
+### **Prerequisities**
+* **Windows** - The best option is likely to use [Cygwin](https://www.cygwin.com/) or [MinGW](http://www.mingw.org/) to provide GNU tools for Windows. Alternatively, if Visual Studio or CLion are present, the repo may be imported to these IDEs.
+
+* **Linux** - The GNU C Compiler (GCC) and associated libraries are required. These packages vary by Linux distribution but can generally be installed by using the following command depending on distribution type:
+    * Debian/Ubuntu based: `$ sudo apt update && sudo apt install build-essential`
+    * Red Hat/Fedora based: `# yum groupinstall 'Development Tools'`
+    * Arch based:  `$ pacman -S base-devel`
+
+### **Clone and Build**
+
+1. Clone this repo: 
+    * SSH: `$ git clone git@github.com:SerjiVutinss/Message-Digest-5-C.git`
+    * HTTPS: `$ git clone https://github.com/SerjiVutinss/Message-Digest-5-C.git`
+
+2. Build:
+    * Use the provided script: `$ chmod a+x build.sh && ./build.sh`
+    * Build manually: `$ gcc main.c lib/md5.c lib/sha256.c lib/message-info.c lib/common-alg.c -lm -o hashC`
+
+### **Run the Program**
+Execute the program with the `--help` to display the following which includes some examples of how to run the program.
+
+    Usage:
+        File:   hashC [FILE] [OPTION]...
+        String: hashC --string [STRING] [OPTION]
+
+    Calculate and print out the MD5(default) or SHA256 hash of the input FILE or STRING.
+    NOTE: If string hashing is to be used, --string MUST be the first argument
+
+        --string [STRING]   Use the next argument as input. --string MUST be the first argument passed if it used.
+                            If the string includes whitespace, it should be surrounded by quotes.
+    
+        --sha256            Use the SHA256 algorithm to calculate the hash.
+    
+        --output [OUTPUT]   Write the hash to the file, [OUTPUT]. MUST be followed by the output filename.
+    
+        --verbose           Print detailed hash information to the screen.
+    
+
+    Example usage:
+        $ hashC input.txt - hash the contents of input.txt using MD5 and print the hash to the screen. 
+        $ hashC --string \"hello world\" - hash the string \"hello world\" and print the hash to the screen. 
+
+        $ hashC input.txt --sha256 - hash the contents of input.txt using SHA256 and print the hash to the screen. 
+        $ hashC input.txt --output output.txt - hash the contents of input.txt, print the hash to the screen and also write it to the file output.txt.
+
+---
+
+## Example Outputs
+
+In this section I have provided two basic examples of verification of the program's output against the Linux command line tool `md5sum`. This section is only for demonstration purposes and I have provided far more detail of the overall program testing in the [Overview][Overview] document.
+
+Command: `$ ./hashC ./res/two-pad-block.txt --output hash-output.txt`
+
+
+    Output:
+
+    Opening file: ./res/two-pad-block.txt
+    Successfully opened file: ./res/two-pad-block.txt
+    Using algorithm: MD5
+    Verbose mode: Disabled
+    Output mode: Enabled
+    Output file: hash-output.txt
+    STARTING MD5 HASH
+
+    HASH: f3bab8014e99a33546458a7dd088c396
+
+Verification command: `$ md5sum ./res/two-pad-block.txt`
+
+    Verification Output: f3bab8014e99a33546458a7dd088c396
+
+---
+Command: `./hashC --string "The quick brown fox jumps over the lazy dog" --output hash-output.txt`
+
+    Output:
+
+    Using algorithm: MD5
+    Verbose mode: Disabled
+    Output mode: Enabled
+    Output file: myfile.txt
+    STARTING MD5 HASH
+
+    HASH: 9e107d9d372bb6826bd81d3542a419d6
+
+Verification command: `echo -n "The quick brown fox jumps over the lazy dog" | md5sum`
+
+    Verification Output: 9e107d9d372bb6826bd81d3542a419d6
+---
+
+## Introduction and Background of MD5 Algorithm
 
 The Message Digest (MD) algorithms are a family of [one way hash functions][One-Way-Hash-Functions]. A one way hash function, as described by [Professor Alan Kaminsky][One-Way-Hash-Functions]:
 
@@ -54,6 +146,8 @@ Each of the algorithms in the MD family were designed by [Ronald Rivest][RonaldR
 * MD4 was generally faster than MD2 but its vulnerabilities were quickly uncovered by researchers and members of the cryptographic community.
 * In response to MD4's apparent weaknesses, Rivest designs MD5 which is more complex and difficult to break. The rest is history.
 
+---
+
 ## Uses of MD5
 
 Originally designed as a [cryptographic hash function][CryptographicHashFunction], MD5 has been found to have extensive vulnerabilities as outlined above and as such it is no longer reliable for cryptographic purposes. The function still has its uses today and is often used as a checksum to verify data integrity. It should be noted that MD5 is unsuitable for use in the verification of tramsmitted data (as per [RFC-6151][RFC-6151]), but it is very useful for verifying that local data has not become corrupt.
@@ -61,6 +155,8 @@ Originally designed as a [cryptographic hash function][CryptographicHashFunction
 * USE for verifying that local data has not become corrupt, e.g. hashing data before compression and recording its hash value means that after decompression, the hash of the decompressed data can then be compared against the original hash. If the hashes match, it is very likely that the data has not been altered during the compression or decompression operations.
 
 * DO NOT USE for verifying the integrity of data after transmission or possible handling by a third party, e.g. via HTTP, stored on a USB device or network. Since collisions are now relatively easy to create, it is possible for a man in the middle to alter the data in such a way that the hash of the original and modified data match. This is a very serious consideration in relation to malware.
+
+---
 
 ## The MD5 Algorithm
 
@@ -72,11 +168,11 @@ In the previous comparison of a number of hashing algorithms, it could be seen t
 |:-         |:-         |:-              |:-     |:-    |:-
 | MD5       | 128       | 128            | 512   | 32   | 64
 
-#### Output
+**Output:**
 The hash value produced by the algorithm which will always be 128 bits in length. In MD5 this is actually the modified initial internal state which is returned once all operations have been performed on it.
 
-#### Internal State
-This four-word buffer, composed of four 32-bit registers (A, B, C and D), should be initialised to the following hexadecimal values:
+**Internal State:**
+This four-word buffer, composed of four 32-bit registers (A, B, C and D), should be initialised to the following hexadecimal values ([md5.h] line 63):
 
 <center>
 
@@ -89,18 +185,18 @@ This four-word buffer, composed of four 32-bit registers (A, B, C and D), should
 
 </center>
 
-#### Block
+**Block**
 The input message is broken into chunks (blocks) of 512 bits in size. More on this is the Padding section.
 
-#### Word
+**Word**
 As outlined above, the internal state is maintained as a four-word buffer, i.e. 4 x 32-bit words to give an internal state size of 128 bits.
 
-#### Rounds 
+**Rounds**
 The number of rounds of calculations to be peformed in the algorithm. 64 rounds are used here although it can also be thought of as 4 stages of 16 similar operations.
 
-### Steps
+### Algorithm Steps
 
-#### Step 1 and Step 2 - Append Padding Bits and Length ([RFC-1321][[RFC-1321]] Section 3.1 & 3.2)
+#### Step 1 and Step 2 - Append Padding Bits and Length ([RFC-1321][RFC-1321] Section 3.1 & 3.2)
 
 Since each block must be 512 bits in length, the original message may need to be padded so that its length is congruent to 448, modulo 512, i.e the entire length of the message should be padded to 64 bits short of being a multiple of 512 bits. Depending on the original length of the message, this may result in the need to add a new, fully padded block to the message.
 
@@ -162,6 +258,56 @@ I have initialised `H_MD5` as follows (according to [RFC-1321][RFC-1321] Section
 
 #### Step 4 - Process Message in 16-Word Blocks ([RFC-1321][RFC-1321] Section 3.4)
 
+**Functions F, G, H and I:**
+These auxiliary functions, each taking three 32-bit words as inputs and producing one 32-bit word as their outputs must be defined. RFC-1321 defines these functions as:
+
+    F(X,Y,Z) = XY v not(X) Z
+    G(X,Y,Z) = XZ v Y not(Z)
+    H(X,Y,Z) = X xor Y xor Z
+    I(X,Y,Z) = Y xor (X v not(Z))
+
+I have implemented these methods using the standard C bit operators and using WORD as an alias for the numeric `uint32_t` type available in the `inttypes.h` library. (For actual implementations, please refer to lines 99-120 of [md5.h].
+
+    WORD F(WORD x, WORD y, WORD z) => ((x & y) | ((~x) & z));
+    WORD G(WORD x, WORD y, WORD z) => ((x & z) | (y & (~z)));
+    WORD H(WORD x, WORD y, WORD z) => (x ^ y ^ z);
+    WORD I(WORD x, WORD y, WORD z) => (y ^ (x | (~z)));
+
+**Functions FF, GG, HH and II:**
+Additionally, not specified in RFC-1321, it is useful to create the functions FF, GG, HH and II which provide a means for calling each of the above 4 functions in a consistent fashion.  I have implemented each of these methods and call them from the function to process each block, rather than calling F, G, H or I directly. In my opinion, thsi greatly increases the readability of the code, debugging and reslience to errors. The functions could each be reduced to one line of code but I have intentionally left the code verbose for increased readability.
+
+**It should be noted that the first argument should be a pointer to a WORD, rather than an actual WORD.
+
+    FF(WORD *a, WORD b, WORD c, WORD d, WORD k, WORD s, WORD ac)
+    {
+        WORD sum = (*a + F(b, c, d) + k + ac);
+        *a = b + ROTL(sum, s);
+    }
+
+**Rotate Left:** Not specified in RFC-1321, this is a useful method which rotates the bits in the input Word x, left by c bits. Note that c does not need to be a word, but for consistency I have used the same type as x. ([md5.h], lines 128-130)
+
+    WORD ROTL(WORD x, WORD c) =>  (((x) << (c)) | ((x) >> (32 - (c))));
+
+**Round-Shift Amounts (S):** Specified in the description of each round in RFC-1321, I have used an array for these values. They determine how many bits are to be shifted in each of the algorithm's rounds. They are used solely as an input argument to the Rotate Left function.
+
+### Process Each Message Block
+
+Using the functions outlined above, RFC-1321 states to do the following with each message block:
+
+* Break each block into 16 32-bit chunks (Words), e.g. M[16];
+
+* Initialise values for this hash using the values described for H_MD5 in the Internal State in the [Terminology section](#Terminology) of this document.  For the first block, I have initialised the variables A, B, C and D to the initial values of the H_MD5 array. This is done via the nextMD5Hash() ([md5.c] line 104) method. This method is first called by passing in the H_MD5 array, which results in this:
+
+        WORD A = H_MD5[0];
+        WORD B = H_MD5[1];
+        WORD C = H_MD5[2];
+        WORD D = H_MD5[3];
+
+* Now perform the 4 rounds of 16 calculations. I have implemented this as a single block of 64 method calls, but it is also possible to perform these calculations within a loop if so desired and can be done very nicely with function pointers. For this implementation, I have left the code intentionally verbose to increase readability. Also, RFC-1321 describes this portion of the algorithm in 64 distinct operations so I have kept with that methodology.  Rather than adding all of the code here, it can be seen in this repo in [md5.c] lines 125-194.
+
+* Once all round calculations have been performed, the initial values of H_MD5 are now incremented by the values A, B, C and D respectively. The current value of H_MD5 at this point is the hash value at this point. If the message consists of multiple blocks, this new value of H_MD5 is then used as an initialiser to calculate the next block's hash which is again added to H_MD5, and so on until no blocks remain. If this is a single-block hash, this is the result of the hash.
+
+
 
 
 ---
@@ -215,3 +361,6 @@ I have initialised `H_MD5` as follows (according to [RFC-1321][RFC-1321] Section
 
 [FlameMalware]: https://en.wikipedia.org/wiki/Flame_(malware)
 ###### [Flame (Malware)][FlameMalware]
+
+[md5.h]: https://github.com/SerjiVutinss/Message-Digest-5-C/blob/master/lib/md5.h
+[md5.c]: https://github.com/SerjiVutinss/Message-Digest-5-C/blob/master/lib/md5.c
