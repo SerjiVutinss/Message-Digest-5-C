@@ -38,7 +38,7 @@ Execute the program with the `--help` to display the following which includes so
     Calculate and print out the MD5(default) or SHA256 hash of the input FILE or STRING.
     NOTE: If string hashing is to be used, --string MUST be the first argument
 
-        --string [STRING]   Use the next argument as input. --string MUST be the first argument passed if it used.
+        --string [STRING]   Use the next argument as input. --string MUST be the first argument passed if it is used.
                             If the string includes whitespace, it should be surrounded by quotes.
     
         --sha256            Use the SHA256 algorithm to calculate the hash.
@@ -229,7 +229,7 @@ This four-word buffer, composed of four 32-bit registers (A, B, C and D), should
 </center>
 
 **Block**
-The input message is broken into chunks (blocks) of 512 bits in size. More on this is the Padding section.
+The input message is broken into chunks (blocks) of 512 bits in size. More on this in the Padding section.
 
 **Word**
 As outlined above, the internal state is maintained as a four-word buffer, i.e. 4 x 32-bit words to give an internal state size of 128 bits.
@@ -264,7 +264,7 @@ Different approaches to padding could be taken, e.g. the entire message could be
 
     var lastBlockLength = number of bits used in the last 512-bit block.
 
-4. "Depending on the length of 'lastBlockLength', do one the following:"
+5. "Depending on the length of 'lastBlockLength', do one of the following:"
 
     If lastBlockLength < 448 bits Then 
         
@@ -319,7 +319,7 @@ I have implemented these methods using the standard C bit operators and using WO
     WORD I(WORD x, WORD y, WORD z) => (y ^ (x | (~z)));
 
 **Functions FF, GG, HH and II:**
-Additionally, not specified in RFC-1321, it is useful to create the functions FF, GG, HH and II which provide a means for calling each of the above 4 functions in a consistent fashion.  I have implemented each of these methods and call them from the function to process each block, rather than calling F, G, H or I directly. In my opinion, thsi greatly increases the readability of the code, debugging and reslience to errors. The functions could each be reduced to one line of code but I have intentionally left the code verbose for increased readability.
+Additionally, not specified in RFC-1321, it is useful to create the functions FF, GG, HH and II which provide a means for calling each of the above 4 functions in a consistent fashion.  I have implemented each of these methods and call them from the function to process each block, rather than calling F, G, H or I directly. In my opinion this greatly increases the readability of the code, debugging and resilience to errors. The functions could each be reduced to one line of code but I have intentionally left the code verbose for increased readability.
 
 **It should be noted that the first argument should be a pointer to a WORD, rather than an actual WORD.
 
@@ -350,7 +350,7 @@ Using the functions and values outlined above, RFC-1321 states to do the followi
 
 * Now perform the 4 rounds of 16 calculations. I have implemented this as a single block of 64 method calls, but it is also possible to perform these calculations within a loop if so desired and can be done very nicely with function pointers. For this implementation, I have left the code intentionally verbose to increase readability. Also, RFC-1321 describes this portion of the algorithm in 64 distinct operations so I have kept with that methodology.  Rather than adding all of the code here, it can be seen in this repo in [md5.c] lines 125-194.
 
-* Once all round calculations have been performed, the initial values of H_MD5 are now incremented by the values A, B, C and D respectively. The current value of H_MD5 at this point is the hash value at this point. If the message consists of multiple blocks, this new value of H_MD5 is then used as an initialiser to calculate the next block's hash which is again added to H_MD5, and so on until no blocks remain. If this is a single-block hash, this is the result of the hash.
+* Once all round calculations have been performed, the initial values of H_MD5 are now incremented by the values A, B, C and D respectively. The value of H_MD5 at this point is the current hash value. If the message consists of multiple blocks, this new value of H_MD5 is then used as an initialiser to calculate the next block's hash which is again added to H_MD5, and so on until no blocks remain. If this is a single-block hash, this is the result of the hash.
 
 ---
 
